@@ -1,4 +1,3 @@
-// src/pages/EmployeeEditPage.jsx
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
@@ -9,7 +8,8 @@ const EmployeeEditPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const { selectedEmployee, loading, error } = useSelector((state) => state.employees);
+  const { employee: selectedEmployee, loading, error } = useSelector((state) => state.employees);
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -25,11 +25,11 @@ const EmployeeEditPage = () => {
   useEffect(() => {
     if (selectedEmployee) {
       setFormData({
-        name: selectedEmployee.name,
-        email: selectedEmployee.email,
-        designation: selectedEmployee.designation,
-        phone: selectedEmployee.phone,
-        role: selectedEmployee.role,
+        name: selectedEmployee.name || '',
+        email: selectedEmployee.email || '',
+        designation: selectedEmployee.designation || '',
+        phone: selectedEmployee.phone || '',
+        role: selectedEmployee.role || '',
       });
     }
   }, [selectedEmployee]);
@@ -38,10 +38,10 @@ const EmployeeEditPage = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    dispatch(updateEmployee({ id, data: formData }));
-    navigate("/admin/employeeList");
+    await dispatch(updateEmployee({ id, data: formData }));
+    navigate('/admin/employeeList');
   };
 
   return (

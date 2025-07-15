@@ -47,9 +47,9 @@ export const fetchEmployeeById = createAsyncThunk(
 // UPDATE employee by ID
 export const updateEmployee = createAsyncThunk(
   'employees/update',
-  async ({ id, updatedData }, thunkAPI) => {
+  async ({ id, data }, thunkAPI) => {
     try {
-      const res = await axios.put(`${API_URL}/${id}`, updatedData, {
+      const res = await axios.put(`${API_URL}/${id}`, data, {
         withCredentials: true,
       });
       return res.data;
@@ -135,6 +135,7 @@ const employeeSlice = createSlice({
         state.list = state.list.map(emp =>
           emp._id === action.payload._id ? action.payload : emp
         );
+        state.employee = action.payload;
       })
       .addCase(updateEmployee.rejected, (state, action) => {
         state.loading = false;

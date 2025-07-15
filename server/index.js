@@ -20,8 +20,8 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors({
-  origin: 'http://localhost:5174', // Your React frontend port
-  credentials: true,               // Allow cookies to be sent
+  origin: 'http://localhost:5174', 
+  credentials: true,              
 }));
 
 

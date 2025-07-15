@@ -1,0 +1,382 @@
+/* adminShow.css - Professional Admin Dashboard Design */
+
+.admin-dashboard {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  min-height: 500px;
+}
+
+.section-title {
+  color: #1f2937;
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 2rem;
+  text-align: center;
+  position: relative;
+  padding-bottom: 1rem;
+}
+
+.section-title::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120px;
+  height: 3px;
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  border-radius: 2px;
+}
+
+/* Loading and Error States */
+.admin-dashboard > p {
+  text-align: center;
+  padding: 2rem;
+  font-size: 1.1rem;
+  color: #6b7280;
+  background: #f9fafb;
+  border-radius: 8px;
+  margin: 1rem 0;
+}
+
+.error {
+  color: #dc2626 !important;
+  background: #fef2f2 !important;
+  border: 1px solid #fecaca;
+  font-weight: 500;
+}
+
+/* Table Container */
+.request-table {
+  overflow-x: auto;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-top: 1rem;
+}
+
+/* Table Styling */
+.request-table table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+  background: #ffffff;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.request-table thead {
+  background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.request-table th {
+  padding: 1.25rem 1rem;
+  text-align: left;
+  font-weight: 600;
+  color: #374151;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.85rem;
+  border-bottom: 2px solid #e5e7eb;
+  position: relative;
+}
+
+.request-table th::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, #3b82f6, #1d4ed8);
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.request-table th:hover::after {
+  transform: scaleX(1);
+}
+
+.request-table tbody tr {
+  transition: all 0.3s ease;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.request-table tbody tr:hover {
+  background: #f8fafc;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.request-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.request-table td {
+  padding: 1rem;
+  color: #4b5563;
+  vertical-align: middle;
+  border-bottom: 1px solid #f3f4f6;
+  white-space: nowrap;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Status Badges */
+.request-table td:nth-child(3) {
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.request-table tbody tr td:nth-child(3) {
+  position: relative;
+}
+
+.request-table tbody tr td:nth-child(3)::before {
+  content: '';
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 8px;
+  background: #6b7280;
+}
+
+/* Status Colors */
+.request-table tbody tr:has(td:nth-child(3):contains("pending")) td:nth-child(3)::before {
+  background: #f59e0b;
+}
+
+.request-table tbody tr:has(td:nth-child(3):contains("approved")) td:nth-child(3)::before {
+  background: #10b981;
+}
+
+.request-table tbody tr:has(td:nth-child(3):contains("rejected")) td:nth-child(3)::before {
+  background: #ef4444;
+}
+
+/* User Column Styling */
+.request-table td:first-child {
+  font-weight: 500;
+  color: #1f2937;
+  max-width: 250px;
+}
+
+/* Asset Type Column */
+.request-table td:nth-child(2) {
+  font-weight: 500;
+  color: #3b82f6;
+  text-transform: capitalize;
+}
+
+/* Reason Column */
+.request-table td:nth-child(4) {
+  max-width: 300px;
+  font-style: italic;
+  color: #6b7280;
+}
+
+/* Date Column */
+.request-table td:nth-child(5) {
+  color: #6b7280;
+  font-size: 0.9rem;
+  min-width: 150px;
+}
+
+/* Action Button */
+.request-table button {
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  position: relative;
+  overflow: hidden;
+  min-width: 80px;
+}
+
+.request-table button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.request-table button:hover::before {
+  left: 100%;
+}
+
+.request-table button:hover {
+  background: linear-gradient(135deg, #2563eb, #1e40af);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+}
+
+.request-table button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+}
+
+/* Actions Column */
+.request-table td:last-child {
+  text-align: center;
+  min-width: 100px;
+}
+
+/* Empty State */
+.admin-dashboard > p:only-of-type {
+  background: #f8fafc;
+  border: 2px dashed #d1d5db;
+  color: #6b7280;
+  padding: 3rem;
+  text-align: center;
+  font-size: 1.1rem;
+  border-radius: 12px;
+  margin: 2rem 0;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .admin-dashboard {
+    padding: 1.5rem;
+  }
+  
+  .request-table {
+    overflow-x: scroll;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .request-table table {
+    min-width: 800px;
+  }
+  
+  .request-table th,
+  .request-table td {
+    padding: 0.75rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-dashboard {
+    margin: 1rem;
+    padding: 1rem;
+    border-radius: 8px;
+  }
+  
+  .section-title {
+    font-size: 1.75rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .request-table table {
+    min-width: 700px;
+  }
+  
+  .request-table th,
+  .request-table td {
+    padding: 0.625rem;
+    font-size: 0.9rem;
+  }
+  
+  .request-table button {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-dashboard {
+    margin: 0.5rem;
+    padding: 0.75rem;
+  }
+  
+  .section-title {
+    font-size: 1.5rem;
+  }
+  
+  .request-table th,
+  .request-table td {
+    padding: 0.5rem;
+    font-size: 0.85rem;
+  }
+}
+
+/* Animation for table rows */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.request-table tbody tr {
+  animation: fadeInUp 0.4s ease-out;
+}
+
+/* Focus indicators for accessibility */
+.request-table button:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .admin-dashboard {
+    border: 2px solid #000;
+  }
+  
+  .request-table table {
+    border: 2px solid #000;
+  }
+  
+  .request-table th {
+    background: #000;
+    color: #fff;
+  }
+  
+  .request-table button {
+    background: #000;
+    border: 2px solid #000;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .request-table tbody tr,
+  .request-table button,
+  .request-table th::after {
+    animation: none;
+    transition: none;
+  }
+  
+  .request-table button::before {
+    display: none;
+  }
+  
+  .request-table tbody tr:hover {
+    transform: none;
+  }
+}

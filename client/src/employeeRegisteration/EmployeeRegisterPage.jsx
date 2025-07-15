@@ -32,7 +32,7 @@ const EmployeeRegisterPage = () => {
     }
  
     dispatch(createEmployee(formData)).then((res) => {
-      if (!res.error) navigate('/admin/employees');
+      if (!res.error) navigate('/admin/employeeList');
     });
   };
  

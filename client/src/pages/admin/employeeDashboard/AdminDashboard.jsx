@@ -1,8 +1,8 @@
 // pages/AdminDashBoard.jsx
-import { useDispatch } from 'react-redux';
-import { logout } from '../../slices/authSlice'
-import { useNavigate } from 'react-router-dom';
-import './AdminDashboard.css'; // External CSS for styling
+import { useDispatch } from "react-redux";
+import { logout } from "../../../slices/authSlice";
+import { useNavigate } from "react-router-dom";
+import "./AdminDashboard.css"; // External CSS for styling
 
 const AdminDashBoard = () => {
   const dispatch = useDispatch();
@@ -10,15 +10,19 @@ const AdminDashBoard = () => {
 
   const handleLogout = () => {
     dispatch(logout());
-    navigate('/');
+    navigate("/");
   };
 
   const goToEmployees = () => {
-    navigate('/admin/employeeList');
+    navigate("/admin/employeeList");
   };
 
   const goToAssets = () => {
-    navigate('/admin/assets');
+    navigate("/admin/assets");
+  };
+
+  const goToRequests = () => {
+    navigate("/admin/assets/showRequest");
   };
 
   return (
@@ -46,7 +50,8 @@ const AdminDashBoard = () => {
         <div className="welcome-section">
           <h2 className="welcome-title">Welcome back!</h2>
           <p className="welcome-text">
-            Manage your organization efficiently with our comprehensive admin tools.
+            Manage your organization efficiently with our comprehensive admin
+            tools.
           </p>
         </div>
 
@@ -81,7 +86,8 @@ const AdminDashBoard = () => {
               <h2>Employee Management</h2>
             </div>
             <p className="card-description">
-              Manage and monitor employee details, departments, and performance metrics.
+              Manage and monitor employee details, departments, and performance
+              metrics.
             </p>
             <div className="card-features">
               <span className="feature-tag">✓ Employee Profiles</span>
@@ -112,6 +118,24 @@ const AdminDashBoard = () => {
               View Assets
             </button>
           </div>
+        </div>
+        <div className="dashboard-card request-card">
+          <div className="card-header">
+            <div className="card-icon">📨</div>
+            <h2>Asset Requests</h2>
+          </div>
+          <p className="card-description">
+            View, approve, or reject asset requests made by employees.
+          </p>
+          <div className="card-features">
+            <span className="feature-tag">✓ Request Tracking</span>
+            <span className="feature-tag">✓ Approval Management</span>
+            <span className="feature-tag">✓ User Interaction</span>
+          </div>
+          <button onClick={goToRequests} className="card-btn tertiary-btn">
+            <span className="btn-icon">📨</span>
+            Show Requests
+          </button>
         </div>
 
         <div className="quick-actions">

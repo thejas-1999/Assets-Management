@@ -1,6 +1,7 @@
 import Asset from "../models/assetModel.js";
 import asyncHandler from "../middleware/asyncHandler.js";
 import User from "../models/userModel.js";
+import Request from "../models/requestModel.js";
 
 // @desc    Create a new asset
 // @route   POST /api/assets
@@ -76,13 +77,14 @@ const deleteAssetById = asyncHandler(async (req, res) => {
   const asset = await Asset.findById(req.params.id);
 
   if (asset) {
-    await asset.remove();
+    await Asset.findByIdAndDelete(req.params.id); // ✅ FIXED HERE
     res.json({ message: "Asset deleted" });
   } else {
     res.status(404);
     throw new Error("Asset not found");
   }
 });
+
 
 // @desc    Assign asset to user
 // @route   PUT /api/assets/:id/assign
@@ -152,6 +154,71 @@ const getAssetsByUser = asyncHandler(async (req, res) => {
   res.json(assets);
 });
 
+// @access  Private (any logged-in user)
+const requestAsset = asyncHandler(async (req, res) => {
+  const { assetType, reason } = req.body;
+
+  if (!assetType) {
+    res.status(400);
+    throw new Error("Asset type is required");
+  }
+
+  const newRequest = await Request.create({
+    user: req.user._id,
+    assetType,
+    reason,
+  });
+
+  res.status(201).json({ message: "Asset request submitted", request: newRequest });
+});
+
+// @desc    Get all asset requests
+// @route   GET /api/assets/requests
+// @access  Admin or SuperAdmin
+const getAllRequests = asyncHandler(async (req, res) => {
+  const requests = await Request.find()
+    .populate('user', 'name email')
+    .populate('handledBy', 'name email')
+    .sort({ createdAt: -1 });
+
+  res.json(requests);
+});
+
+// @desc    Update request status (approve/reject)
+// @route   PUT /api/assets/requests/:id
+// @access  Admin or SuperAdmin
+const updateRequestStatus = asyncHandler(async (req, res) => {
+  const { status, responseNote } = req.body;
+  const request = await Request.findById(req.params.id);
+
+  if (!request) {
+    res.status(404);
+    throw new Error("Request not found");
+  }
+
+  if (!['approved', 'rejected'].includes(status)) {
+    res.status(400);
+    throw new Error("Invalid status value");
+  }
+
+  request.status = status;
+  request.responseNote = responseNote || '';
+  request.handledBy = req.user._id;
+
+  const updated = await request.save();
+  res.json(updated);
+});
+
+// @desc    Get requests by logged-in user
+// @route   GET /api/assets/myrequests
+// @access  Private (user)
+const getMyRequests = asyncHandler(async (req, res) => {
+  const requests = await Request.find({ user: req.user._id }).sort({ createdAt: -1 });
+  res.json(requests);
+});
+
+
+
 export {
   createAsset,
   getAllAssets,
@@ -161,4 +228,7 @@ export {
   assignAsset,
   returnAsset,
   getAssetsByUser,
+  requestAsset,
+  getAllRequests,updateRequestStatus,
+  getMyRequests
 };

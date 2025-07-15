@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { loginUser } from '../../slices/authSlice';
 import { useNavigate } from 'react-router-dom';
-import './login.css'
+import './login.css';
 
 const LoginPage = () => {
   const dispatch = useDispatch();
@@ -19,7 +19,7 @@ const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
 
-  // Restore from localStorage (optional)
+  // Restore user session from localStorage
   useEffect(() => {
     const savedUser = localStorage.getItem('user');
     if (savedUser) {
@@ -31,23 +31,6 @@ const LoginPage = () => {
       }
     }
   }, [navigate]);
-
-  // Redirect after successful login
- useEffect(() => {
-  const savedUser = localStorage.getItem('user');
-  if (savedUser) {
-    const parsedUser = JSON.parse(savedUser);
-    const currentPath = window.location.pathname;
-    const isAdmin = parsedUser.role === 'admin' || parsedUser.role === 'superadmin';
-
-    if (isAdmin && currentPath !== '/admin/dashboard') {
-      navigate('/admin/dashboard');
-    } else if (!isAdmin && currentPath !== '/employeedashboard') {
-      navigate('/employeedashboard');
-    }
-  }
-}, []); // ✅ Run only once on mount
-
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -88,7 +71,6 @@ const LoginPage = () => {
 
     try {
       const resultAction = await dispatch(loginUser(formData));
-
       if (loginUser.fulfilled.match(resultAction)) {
         const user = resultAction.payload;
 
@@ -113,13 +95,8 @@ const LoginPage = () => {
     <div className="login-container">
       <div className="login-card">
         <div className="card-header">
-          <h1>Admin Login</h1>
-          
+          <h1>Login</h1>
         </div>
-        
-            
-        
-        
 
         <form className="login-form" onSubmit={handleSubmit}>
           <div className="form-group">
@@ -130,7 +107,7 @@ const LoginPage = () => {
               name="email"
               value={formData.email}
               onChange={handleChange}
-              placeholder="Enter your email address"
+              placeholder="Enter your email"
               className={errors.email ? 'error' : ''}
               required
             />
@@ -190,7 +167,7 @@ const LoginPage = () => {
         <div className="card-footer">
           <p>
             Don't have an account?{' '}
-            <span style={{ color: '#999' }}>Ask SuperAdmin to register</span>
+            <span style={{ color: '#999' }}>Ask SuperAdmin to register you</span>
           </p>
         </div>
       </div>

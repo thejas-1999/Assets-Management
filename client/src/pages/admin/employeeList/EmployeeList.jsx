@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchEmployees, deleteEmployee } from "../../slices/employeeSlice";
+import { fetchEmployees, deleteEmployee } from "../../../slices/employeeSlice";
 import { useNavigate } from "react-router-dom";
 import './employeeList.css'
 
