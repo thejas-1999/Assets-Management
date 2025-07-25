@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { loginUser } from '../../slices/authSlice';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate ,Link} from 'react-router-dom';
 import './login.css';
 
 const LoginPage = () => {
@@ -148,9 +148,7 @@ const LoginPage = () => {
               <span className="checkmark"></span>
               Remember me
             </label>
-            <a href="#forgot-password" className="forgot-password">
-              Forgot Password?
-            </a>
+            <Link to="/forgot-password" className="forgot-password">Forgot Password?</Link>
           </div>
 
           {error && <p className="error-message">{error}</p>}

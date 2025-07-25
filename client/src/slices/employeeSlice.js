@@ -1,16 +1,13 @@
+// src/slices/employeeSlice.js
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
-
-const API_URL = 'http://localhost:5000/api/users';
+import api from '../utiils/api'; // 👈 Use shared Axios instance
 
 // CREATE employee
 export const createEmployee = createAsyncThunk(
   'employees/create',
   async (formData, thunkAPI) => {
     try {
-      const res = await axios.post(`${API_URL}/register`, formData, {
-        withCredentials: true,
-      });
+      const res = await api.post('/users/register', formData);
       return res.data;
     } catch (err) {
       return thunkAPI.rejectWithValue(err.response?.data?.message || 'Create failed');
@@ -23,7 +20,7 @@ export const fetchEmployees = createAsyncThunk(
   'employees/fetchAll',
   async (_, thunkAPI) => {
     try {
-      const res = await axios.get(API_URL, { withCredentials: true });
+      const res = await api.get('/users');
       return res.data;
     } catch (err) {
       return thunkAPI.rejectWithValue(err.response?.data?.message || 'Fetch failed');
@@ -36,7 +33,7 @@ export const fetchEmployeeById = createAsyncThunk(
   'employees/fetchById',
   async (id, thunkAPI) => {
     try {
-      const res = await axios.get(`${API_URL}/${id}`, { withCredentials: true });
+      const res = await api.get(`/users/${id}`);
       return res.data;
     } catch (err) {
       return thunkAPI.rejectWithValue(err.response?.data?.message || 'Fetch by ID failed');
@@ -44,14 +41,12 @@ export const fetchEmployeeById = createAsyncThunk(
   }
 );
 
-// UPDATE employee by ID
+// UPDATE employee
 export const updateEmployee = createAsyncThunk(
   'employees/update',
   async ({ id, data }, thunkAPI) => {
     try {
-      const res = await axios.put(`${API_URL}/${id}`, data, {
-        withCredentials: true,
-      });
+      const res = await api.put(`/users/${id}`, data);
       return res.data;
     } catch (err) {
       return thunkAPI.rejectWithValue(err.response?.data?.message || 'Update failed');
@@ -64,7 +59,7 @@ export const deleteEmployee = createAsyncThunk(
   'employees/delete',
   async (id, thunkAPI) => {
     try {
-      await axios.delete(`${API_URL}/${id}`, { withCredentials: true });
+      await api.delete(`/users/${id}`);
       return id;
     } catch (err) {
       return thunkAPI.rejectWithValue(err.response?.data?.message || 'Delete failed');
@@ -83,7 +78,6 @@ const employeeSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      // Fetch all
       .addCase(fetchEmployees.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -97,7 +91,6 @@ const employeeSlice = createSlice({
         state.error = action.payload;
       })
 
-      // Fetch by ID
       .addCase(fetchEmployeeById.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -111,7 +104,6 @@ const employeeSlice = createSlice({
         state.error = action.payload;
       })
 
-      // Create
       .addCase(createEmployee.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -125,7 +117,6 @@ const employeeSlice = createSlice({
         state.error = action.payload;
       })
 
-      // Update
       .addCase(updateEmployee.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -142,7 +133,6 @@ const employeeSlice = createSlice({
         state.error = action.payload;
       })
 
-      // Delete
       .addCase(deleteEmployee.fulfilled, (state, action) => {
         state.list = state.list.filter(emp => emp._id !== action.payload);
       });

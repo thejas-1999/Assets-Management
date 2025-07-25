@@ -2,6 +2,13 @@ import User from "../models/userModel.js";
 import asyncHandler from "../middleware/asyncHandler.js";
 import generateToken from "../utils/generateToken.js";
 import Asset from "../models/assetModel.js"
+import sendEmail from "../utils/sendEmail.js";
+import generateResetToken from '../utils/resetToken.js';
+import crypto from 'crypto'; // for ES Modules
+
+
+
+
 
 // @desc    Register a new user
 // @route   POST /api/users/register
@@ -9,12 +16,14 @@ import Asset from "../models/assetModel.js"
 const registerUser = asyncHandler(async (req, res) => {
   const { name, email, password, designation, phone, role } = req.body;
 
+  // Check if user already exists
   const userExists = await User.findOne({ email });
   if (userExists) {
     res.status(400);
     throw new Error("User already exists");
   }
 
+  // Create new user
   const user = await User.create({
     name,
     email,
@@ -25,7 +34,24 @@ const registerUser = asyncHandler(async (req, res) => {
   });
 
   if (user) {
+    // Generate token and store in cookie
     generateToken(res, user._id);
+
+    // ✅ Send welcome email to the user
+    await sendEmail(
+      user.email,
+      "Welcome to Asset Manager",
+      `Hi ${user.name},\n\nYour account has been successfully created.\n\nRegards,\nAsset Management Team`
+    );
+
+    // ✅ Notify admin (email will go to Mailtrap)
+    await sendEmail(
+      "admin@example.com",  // can be any dummy email — Mailtrap catches it
+      "New User Registered",
+      `A new user has registered:\n\nName: ${user.name}\nEmail: ${user.email}\nDesignation: ${user.designation}\nPhone: ${user.phone}\nRole: ${user.role}`
+    );
+
+    // Respond with user info
     res.status(201).json({
       _id: user._id,
       name: user.name,
@@ -40,6 +66,7 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new Error("Invalid user data");
   }
 });
+
 
 // @desc    Login user & get token
 // @route   POST /api/users/login
@@ -184,19 +211,87 @@ const updateUser = asyncHandler(async (req, res) => {
   }
 });
 
+
+
+
 // @desc    Delete user by ID
 // @route   DELETE /api/users/:id
 // @access  SuperAdmin Only
 const deleteUser = asyncHandler(async (req, res) => {
-  const user = await User.findById(req.params.id);
-  if (user) {
-    await user.remove();
-    res.json({ message: "User removed" });
-  } else {
+  const { id } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    res.status(400);
+    throw new Error("Invalid user ID");
+  }
+
+  const user = await User.findById(id);
+  if (!user) {
     res.status(404);
     throw new Error("User not found");
   }
+
+  await User.deleteOne({ _id: id });
+
+  res.status(200).json({ message: "User deleted successfully" });
 });
+
+
+
+
+
+
+const forgotPassword = asyncHandler(async (req, res) => {
+  const { email } = req.body;
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    res.status(404);
+    throw new Error('No user found with this email');
+  }
+
+  const { resetToken, hashedToken } = generateResetToken();
+
+  user.resetPasswordToken = hashedToken;
+  user.resetPasswordExpires = Date.now() + 15 * 60 * 1000; // 15 minutes
+  await user.save();
+
+  const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
+  const message = `Hi ${user.name},\n\nYou requested to reset your password.\nClick this link to reset it:\n${resetUrl}\n\nIf not requested, ignore this.`;
+
+  await sendEmail(user.email, 'Password Reset Request', message);
+
+  res.json({ message: 'Password reset link sent to email' });
+});
+
+
+const resetPassword = asyncHandler(async (req, res) => {
+  const { token } = req.params;
+  const { password } = req.body;
+
+  const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+
+  const user = await User.findOne({
+    resetPasswordToken: hashedToken,
+    resetPasswordExpires: { $gt: Date.now() },
+  });
+
+  if (!user) {
+    res.status(400);
+    throw new Error('Invalid or expired reset token');
+  }
+
+  user.password = password;
+  user.resetPasswordToken = undefined;
+  user.resetPasswordExpires = undefined;
+  await user.save();
+
+  res.json({ message: 'Password has been reset successfully' });
+});
+
+
+
+
 
 export {
   registerUser,
@@ -209,4 +304,6 @@ export {
   getUserById,
   updateUser,
   deleteUser,
+  forgotPassword,
+  resetPassword
 };

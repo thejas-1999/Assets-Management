@@ -24,12 +24,16 @@ import AssetCreatePage from "./pages/assets/createAsset/AssetCreate";
 import AssetEditPage from "./pages/assets/assetEdit/AssetEditPage";
 import AssignAssetPage from "./pages/assets/assignAssets/AssignAssetPage";
 import AdminRequestShowPage from "./pages/adminrequestshowpage/AdminRequestShowPage";
+import ForgotPasswordPage from "./pages/auth/ForgotPasswordPage";
+import ResetPasswordPage from "./pages/auth/ResetPasswordPage";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" element={<App />}>
       {/* Public Route */}
       <Route index element={<LoginPage />} />
+      <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+<Route path="/reset-password/:token" element={<ResetPasswordPage />} />
       <Route path="/unauthorized" element={<UnauthorizedPage />} />
 
       {/* Protected Admin Route */}

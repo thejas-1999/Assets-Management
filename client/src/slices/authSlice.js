@@ -1,19 +1,13 @@
-// slices/authSlice.js
+// src/slices/authSlice.js
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
-
-const API_URL = 'http://localhost:5000/api/users';
+import api from '../utiils/api'
 
 // Login
 export const loginUser = createAsyncThunk(
   'auth/loginUser',
   async ({ email, password }, thunkAPI) => {
     try {
-      const response = await axios.post(
-        `${API_URL}/login`,
-        { email, password },
-        { withCredentials: true }
-      );
+      const response = await api.post('/users/login', { email, password });
       return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(
@@ -28,9 +22,7 @@ export const loadUser = createAsyncThunk(
   'auth/loadUser',
   async (_, thunkAPI) => {
     try {
-      const response = await axios.get(`${API_URL}/profile`, {
-        withCredentials: true,
-      });
+      const response = await api.get('/users/profile');
       return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue('Not authenticated');
@@ -38,13 +30,48 @@ export const loadUser = createAsyncThunk(
   }
 );
 
+// Forgot Password
+export const forgotPassword = createAsyncThunk(
+  'auth/forgotPassword',
+  async (email, thunkAPI) => {
+    try {
+      const response = await api.post('/users/forgot-password', { email });
+      return response.data.message;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message || 'Error sending reset link'
+      );
+    }
+  }
+);
+
+// Reset Password
+export const resetPassword = createAsyncThunk(
+  'auth/resetPassword',
+  async ({ token, password }, thunkAPI) => {
+    try {
+      const response = await api.post(`/users/reset-password/${token}`, { password });
+      return response.data.message;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message || 'Error resetting password'
+      );
+    }
+  }
+);
+
+
+
+
 const authSlice = createSlice({
   name: 'auth',
   initialState: {
     userInfo: null,
     loading: false,
     error: null,
+    resetMessage: null, // For displaying success messages
   },
+
   reducers: {
     logout(state) {
       state.userInfo = null;
@@ -53,7 +80,6 @@ const authSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // Login
       .addCase(loginUser.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -66,8 +92,6 @@ const authSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
-
-      // Load user from cookie
       .addCase(loadUser.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -79,7 +103,33 @@ const authSlice = createSlice({
       .addCase(loadUser.rejected, (state) => {
         state.loading = false;
         state.userInfo = null;
-      });
+      })
+      .addCase(forgotPassword.pending, (state) => {
+    state.loading = true;
+    state.error = null;
+    state.resetMessage = null;
+  })
+  .addCase(forgotPassword.fulfilled, (state, action) => {
+    state.loading = false;
+    state.resetMessage = action.payload;
+  })
+  .addCase(forgotPassword.rejected, (state, action) => {
+    state.loading = false;
+    state.error = action.payload;
+  }) .addCase(resetPassword.pending, (state) => {
+    state.loading = true;
+    state.error = null;
+    state.resetMessage = null;
+  })
+  .addCase(resetPassword.fulfilled, (state, action) => {
+    state.loading = false;
+    state.resetMessage = action.payload;
+  })
+  .addCase(resetPassword.rejected, (state, action) => {
+    state.loading = false;
+    state.error = action.payload;
+  });
+
   },
 });
 
