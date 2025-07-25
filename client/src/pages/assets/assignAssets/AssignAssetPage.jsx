@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchAssets, assignAsset, updateRequestStatus } from '../../../slices/assetSlice';
 import { fetchEmployees } from '../../../slices/employeeSlice';
 import { useLocation, useNavigate } from 'react-router-dom';
+import Select from 'react-select';
 import './assignAssets.css';
 
 const AssignAssetPage = () => {
@@ -13,10 +14,9 @@ const AssignAssetPage = () => {
   const { assets, loading: assetLoading } = useSelector((state) => state.asset);
   const { list: employees, loading: empLoading } = useSelector((state) => state.employees);
 
-  const [selectedAsset, setSelectedAsset] = useState('');
-  const [selectedEmployee, setSelectedEmployee] = useState('');
+  const [selectedAsset, setSelectedAsset] = useState(null);
+  const [selectedEmployee, setSelectedEmployee] = useState(null);
 
-  // Extract URL params if navigated from request page
   const searchParams = new URLSearchParams(location.search);
   const requestedUserId = searchParams.get('userId');
   const requestedAssetType = searchParams.get('assetType');
@@ -25,22 +25,32 @@ const AssignAssetPage = () => {
   useEffect(() => {
     dispatch(fetchAssets());
     dispatch(fetchEmployees());
+  }, [dispatch]);
 
-    // Prefill if navigated from request page
-    if (requestedUserId) setSelectedEmployee(requestedUserId);
-  }, [dispatch, requestedUserId]);
+  useEffect(() => {
+    if (requestedUserId && employees.length > 0) {
+      const prefillUser = employees.find((emp) => emp._id === requestedUserId);
+      if (prefillUser) {
+        setSelectedEmployee({
+          value: prefillUser._id,
+          label: `${prefillUser.name} (${prefillUser.email})`,
+        });
+      }
+    }
+  }, [requestedUserId, employees]);
 
   const handleAssign = async () => {
     if (selectedAsset && selectedEmployee) {
-      const result = await dispatch(assignAsset({ id: selectedAsset, userId: selectedEmployee }));
+      const result = await dispatch(
+        assignAsset({ id: selectedAsset.value, userId: selectedEmployee.value })
+      );
 
       if (assignAsset.fulfilled.match(result)) {
-        // ✅ Update request status if present
         if (requestId) {
           await dispatch(updateRequestStatus({ id: requestId, status: 'approved' }));
         }
         alert('Asset assigned successfully!');
-        navigate('/admin/assets/showRequest'); // Go back to request page
+        navigate('/admin/assets/showRequest');
       }
     }
   };
@@ -51,52 +61,84 @@ const AssignAssetPage = () => {
       (!requestedAssetType || a.type?.toLowerCase() === requestedAssetType.toLowerCase())
   );
 
+  const assetOptions = availableAssets.map((a) => ({
+    value: a._id,
+    label: `${a.name} (${a.serialNumber}) - ${a.type}`,
+  }));
+
+  const employeeOptions = employees.map((emp) => ({
+    value: emp._id,
+    label: `${emp.name} (${emp.email})`,
+  }));
+
+  const customSelectStyles = {
+    control: (base, state) => ({
+      ...base,
+      padding: '6px 4px',
+      borderRadius: '12px',
+      borderColor: state.isFocused ? '#667eea' : '#e2e8f0',
+      boxShadow: state.isFocused ? '0 0 0 3px rgba(102, 126, 234, 0.1)' : 'none',
+      '&:hover': {
+        borderColor: '#cbd5e1',
+      },
+      backgroundColor: '#fafbfc',
+      fontSize: '16px',
+    }),
+    option: (base, state) => ({
+      ...base,
+      backgroundColor: state.isSelected
+        ? '#667eea'
+        : state.isFocused
+        ? '#e0e7ff'
+        : 'white',
+      color: state.isSelected ? 'white' : '#374151',
+      padding: 12,
+      fontSize: '16px',
+      cursor: 'pointer',
+    }),
+    menu: (base) => ({
+      ...base,
+      zIndex: 9999,
+      borderRadius: '12px',
+      maxHeight: '300px',
+    }),
+    menuList: (base) => ({
+      ...base,
+      maxHeight: '300px',
+      overflowY: 'auto',
+    }),
+  };
+
   return (
     <div className="assign-page">
       <h2>Assign Asset to Employee</h2>
 
       <div className="form-group">
         <label>Choose Available Asset</label>
-        <select
+        <Select
+          options={assetOptions}
           value={selectedAsset}
-          onChange={(e) => setSelectedAsset(e.target.value)}
-          disabled={assetLoading || availableAssets.length === 0}
-        >
-          <option value="">
-            {assetLoading
-              ? 'Loading assets...'
-              : availableAssets.length === 0
-              ? 'No available assets'
-              : '-- Select Asset --'}
-          </option>
-          {availableAssets.map((a) => (
-            <option key={a._id} value={a._id}>
-              {a.name} ({a.serialNumber}) - {a.type}
-            </option>
-          ))}
-        </select>
+          onChange={setSelectedAsset}
+          isLoading={assetLoading}
+          isDisabled={assetLoading || assetOptions.length === 0}
+          placeholder={assetLoading ? 'Loading assets...' : 'Select Asset'}
+          styles={customSelectStyles}
+          menuPlacement="auto"
+        />
       </div>
 
       <div className="form-group">
         <label>Choose Employee</label>
-        <select
+        <Select
+          options={employeeOptions}
           value={selectedEmployee}
-          onChange={(e) => setSelectedEmployee(e.target.value)}
-          disabled={empLoading || employees.length === 0}
-        >
-          <option value="">
-            {empLoading
-              ? 'Loading employees...'
-              : employees.length === 0
-              ? 'No employees found'
-              : '-- Select Employee --'}
-          </option>
-          {employees.map((emp) => (
-            <option key={emp._id} value={emp._id}>
-              {emp.name} ({emp.email})
-            </option>
-          ))}
-        </select>
+          onChange={setSelectedEmployee}
+          isLoading={empLoading}
+          isDisabled={empLoading || employeeOptions.length === 0}
+          placeholder={empLoading ? 'Loading employees...' : 'Select Employee'}
+          styles={customSelectStyles}
+          menuPlacement="auto"
+        />
       </div>
 
       <button

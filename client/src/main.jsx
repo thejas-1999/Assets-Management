@@ -10,7 +10,7 @@ import {
   Navigate,
 } from "react-router-dom";
 
-import LoginPage from "./pages/auth/LoginPage";
+import LoginPage from "./pages/auth/login/LoginPage";
 import AdminDashBoard from "./pages/admin/employeeDashboard/AdminDashboard";
 import EmployeeDashboard from "./pages/employees/employeeDashboard/EmployeeDashboard"
 import UnauthorizedPage from "./pages/unAuthorizedPage";
@@ -24,8 +24,8 @@ import AssetCreatePage from "./pages/assets/createAsset/AssetCreate";
 import AssetEditPage from "./pages/assets/assetEdit/AssetEditPage";
 import AssignAssetPage from "./pages/assets/assignAssets/AssignAssetPage";
 import AdminRequestShowPage from "./pages/adminrequestshowpage/AdminRequestShowPage";
-import ForgotPasswordPage from "./pages/auth/ForgotPasswordPage";
-import ResetPasswordPage from "./pages/auth/ResetPasswordPage";
+import ForgotPasswordPage from "./pages/auth/forgot/ForgotPasswordPage";
+import ResetPasswordPage from "./pages/auth/reset/ResetPasswordPage";
 
 const router = createBrowserRouter(
   createRoutesFromElements(

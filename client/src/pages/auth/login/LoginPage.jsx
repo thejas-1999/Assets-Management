@@ -1,9 +1,9 @@
 // pages/LoginPage.jsx
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { loginUser } from '../../slices/authSlice';
-import { useNavigate ,Link} from 'react-router-dom';
-import './login.css';
+import { loginUser } from '../../../slices/authSlice';
+import { useNavigate, Link } from 'react-router-dom';
+import styles from './login.module.css';
 
 const LoginPage = () => {
   const dispatch = useDispatch();
@@ -19,7 +19,6 @@ const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
 
-  // Restore user session from localStorage
   useEffect(() => {
     const savedUser = localStorage.getItem('user');
     if (savedUser) {
@@ -87,19 +86,19 @@ const LoginPage = () => {
         }
       }
     } catch (err) {
-      console.error('❌ Login error:', err);
+      console.error('Login error:', err);
     }
   };
 
   return (
-    <div className="login-container">
-      <div className="login-card">
-        <div className="card-header">
+    <div className={styles.loginContainer}>
+      <div className={styles.loginCard}>
+        <div className={styles.cardHeader}>
           <h1>Login</h1>
         </div>
 
-        <form className="login-form" onSubmit={handleSubmit}>
-          <div className="form-group">
+        <form className={styles.loginForm} onSubmit={handleSubmit}>
+          <div className={styles.formGroup}>
             <label htmlFor="email">Email Address</label>
             <input
               type="email"
@@ -108,15 +107,15 @@ const LoginPage = () => {
               value={formData.email}
               onChange={handleChange}
               placeholder="Enter your email"
-              className={errors.email ? 'error' : ''}
+              className={errors.email ? styles.errorInput : ''}
               required
             />
-            {errors.email && <span className="error-message">{errors.email}</span>}
+            {errors.email && <span className={styles.errorMessage}>{errors.email}</span>}
           </div>
 
-          <div className="form-group">
+          <div className={styles.formGroup}>
             <label htmlFor="password">Password</label>
-            <div className="password-input-container">
+            <div className={styles.passwordInputContainer}>
               <input
                 type={showPassword ? 'text' : 'password'}
                 id="password"
@@ -124,45 +123,45 @@ const LoginPage = () => {
                 value={formData.password}
                 onChange={handleChange}
                 placeholder="Enter your password"
-                className={errors.password ? 'error' : ''}
+                className={errors.password ? styles.errorInput : ''}
                 required
               />
               <button
                 type="button"
-                className="password-toggle"
+                className={styles.passwordToggle}
                 onClick={() => setShowPassword(!showPassword)}
               >
                 {showPassword ? '👁️' : '👁️‍🗨️'}
               </button>
             </div>
-            {errors.password && <span className="error-message">{errors.password}</span>}
+            {errors.password && <span className={styles.errorMessage}>{errors.password}</span>}
           </div>
 
-          <div className="form-options">
-            <label className="remember-me">
+          <div className={styles.formOptions}>
+            <label className={styles.rememberMe}>
               <input
                 type="checkbox"
                 checked={rememberMe}
                 onChange={(e) => setRememberMe(e.target.checked)}
               />
-              <span className="checkmark"></span>
+              <span className={styles.checkmark}></span>
               Remember me
             </label>
-            <Link to="/forgot-password" className="forgot-password">Forgot Password?</Link>
+            <Link to="/forgot-password" className={styles.forgotPassword}>Forgot Password?</Link>
           </div>
 
-          {error && <p className="error-message">{error}</p>}
+          {error && <p className={styles.errorMessage}>{error}</p>}
 
           <button
             type="submit"
-            className="submit-btn"
+            className={styles.submitBtn}
             disabled={loading}
           >
             {loading ? 'Signing in...' : 'Sign In'}
           </button>
         </form>
 
-        <div className="card-footer">
+        <div className={styles.cardFooter}>
           <p>
             Don't have an account?{' '}
             <span style={{ color: '#999' }}>Ask SuperAdmin to register you</span>

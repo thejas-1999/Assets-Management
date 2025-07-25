@@ -1,7 +1,5 @@
-/* LoginPage.css */
-
 /* Login Container */
-.login-container {
+.loginContainer {
   min-height: 100vh;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   display: flex;
@@ -12,7 +10,7 @@
 }
 
 /* Login Card */
-.login-card {
+.loginCard {
   background: white;
   border-radius: 16px;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
@@ -23,39 +21,39 @@
 }
 
 /* Card Header */
-.card-header {
+.cardHeader {
   text-align: center;
   margin-bottom: 30px;
 }
 
-.card-header h1 {
+.cardHeader h1 {
   color: #333;
   font-size: 32px;
   font-weight: 700;
   margin: 0 0 10px 0;
 }
 
-.card-header p {
+.cardHeader p {
   color: #666;
   font-size: 16px;
   margin: 0;
 }
 
 /* Login Form */
-.login-form {
+.loginForm {
   width: 100%;
 }
 
 /* Form Groups */
-.form-group {
+.formGroup {
   margin-bottom: 20px;
 }
 
-.form-group:last-of-type {
+.formGroup:last-of-type {
   margin-bottom: 25px;
 }
 
-.form-group label {
+.formGroup label {
   display: block;
   margin-bottom: 8px;
   color: #333;
@@ -64,7 +62,7 @@
 }
 
 /* Form Inputs */
-.form-group input {
+.formGroup input {
   width: 100%;
   padding: 14px 16px;
   border: 2px solid #e2e8f0;
@@ -76,30 +74,30 @@
   box-sizing: border-box;
 }
 
-.form-group input:focus {
+.formGroup input:focus {
   border-color: #667eea;
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
-.form-group input.error {
-  border-color: #e53e3e;
+.errorInput {
+  border-color: #e53e3e !important;
 }
 
-.form-group input.error:focus {
-  border-color: #e53e3e;
+.errorInput:focus {
+  border-color: #e53e3e !important;
   box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.1);
 }
 
 /* Password Input Container */
-.password-input-container {
+.passwordInputContainer {
   position: relative;
 }
 
-.password-input-container input {
+.passwordInputContainer input {
   padding-right: 50px;
 }
 
-.password-toggle {
+.passwordToggle {
   position: absolute;
   right: 12px;
   top: 50%;
@@ -113,12 +111,12 @@
   transition: color 0.3s ease;
 }
 
-.password-toggle:hover {
+.passwordToggle:hover {
   color: #667eea;
 }
 
 /* Error Messages */
-.error-message {
+.errorMessage {
   color: #e53e3e;
   font-size: 12px;
   display: block;
@@ -127,7 +125,7 @@
 }
 
 /* Form Options */
-.form-options {
+.formOptions {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -135,7 +133,7 @@
 }
 
 /* Remember Me Checkbox */
-.remember-me {
+.rememberMe {
   display: flex;
   align-items: center;
   cursor: pointer;
@@ -144,7 +142,7 @@
   position: relative;
 }
 
-.remember-me input[type="checkbox"] {
+.rememberMe input[type="checkbox"] {
   position: absolute;
   opacity: 0;
   cursor: pointer;
@@ -163,12 +161,12 @@
   transition: all 0.3s ease;
 }
 
-.remember-me input:checked ~ .checkmark {
+.rememberMe input:checked ~ .checkmark {
   background-color: #667eea;
   border-color: #667eea;
 }
 
-.remember-me input:checked ~ .checkmark:after {
+.rememberMe input:checked ~ .checkmark:after {
   content: "";
   position: absolute;
   display: block;
@@ -182,7 +180,7 @@
 }
 
 /* Forgot Password Link */
-.forgot-password {
+.forgotPassword {
   color: #667eea;
   text-decoration: none;
   font-size: 14px;
@@ -190,13 +188,13 @@
   transition: color 0.3s ease;
 }
 
-.forgot-password:hover {
+.forgotPassword:hover {
   color: #764ba2;
   text-decoration: underline;
 }
 
 /* Submit Button */
-.submit-btn {
+.submitBtn {
   width: 100%;
   padding: 16px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -210,45 +208,45 @@
   margin-bottom: 20px;
 }
 
-.submit-btn:hover {
+.submitBtn:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
 }
 
-.submit-btn:active {
+.submitBtn:active {
   transform: translateY(0);
 }
 
-.submit-btn:disabled {
+.submitBtn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
   transform: none;
 }
 
-.submit-btn:disabled:hover {
+.submitBtn:disabled:hover {
   transform: none;
   box-shadow: none;
 }
 
 /* Card Footer */
-.card-footer {
+.cardFooter {
   text-align: center;
   color: #666;
   font-size: 14px;
 }
 
-.card-footer p {
+.cardFooter p {
   margin: 0;
 }
 
-.card-footer a {
+.cardFooter a {
   color: #667eea;
   text-decoration: none;
   font-weight: 600;
   transition: color 0.3s ease;
 }
 
-.card-footer a:hover {
+.cardFooter a:hover {
   color: #764ba2;
   text-decoration: underline;
 }
@@ -267,47 +265,42 @@
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  .login-container {
+  .loginContainer {
     padding: 15px;
   }
-  
-  .login-card {
+
+  .loginCard {
     padding: 30px 20px;
   }
-  
-.card-header h1 {
-  display: block;  /* default, but ensure it's not overridden */
-  font-size: 28px;
-  margin-bottom: 5px; /* optional spacing */
-}
 
-.card-header p {
-  display: block;
-  font-size: 14px;
-  margin-top: 0;     /* remove extra spacing if needed */
-}
+  .cardHeader h1 {
+    font-size: 28px;
+  }
 
-  
-  .form-group input {
+  .cardHeader p {
+    font-size: 14px;
+  }
+
+  .formGroup input {
     padding: 12px 14px;
     font-size: 14px;
   }
-  
-  .password-input-container input {
+
+  .passwordInputContainer input {
     padding-right: 45px;
   }
-  
-  .password-toggle {
+
+  .passwordToggle {
     right: 10px;
     font-size: 16px;
   }
-  
-  .submit-btn {
+
+  .submitBtn {
     padding: 14px;
     font-size: 14px;
   }
 
-  .form-options {
+  .formOptions {
     flex-direction: column;
     align-items: flex-start;
     gap: 10px;
@@ -315,27 +308,27 @@
 }
 
 @media (max-width: 480px) {
-  .login-container {
+  .loginContainer {
     padding: 10px;
   }
-  
-  .login-card {
+
+  .loginCard {
     padding: 25px 15px;
   }
-  
-  .card-header h1 {
+
+  .cardHeader h1 {
     font-size: 24px;
   }
-  
-  .form-group {
+
+  .formGroup {
     margin-bottom: 15px;
   }
-  
-  .form-group:last-of-type {
+
+  .formGroup:last-of-type {
     margin-bottom: 20px;
   }
 
-  .form-options {
+  .formOptions {
     margin-bottom: 25px;
   }
 }

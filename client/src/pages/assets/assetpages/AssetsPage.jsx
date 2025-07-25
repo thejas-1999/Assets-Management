@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAssets, deleteAsset, returnAsset } from "../../../slices/assetSlice";
 import { useNavigate } from "react-router-dom";
@@ -7,8 +7,9 @@ import "./assetPage.css";
 const AssetsPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
   const { assets, loading, error } = useSelector((state) => state.asset);
+
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     dispatch(fetchAssets());
@@ -34,6 +35,13 @@ const AssetsPage = () => {
     navigate(`/admin/assets/edit/${id}`);
   };
 
+  const filteredAssets = assets.filter((asset) =>
+    [asset.name, asset.type, asset.serialNumber]
+      .join(" ")
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase())
+  );
+
   return (
     <div className="assets-container">
       <div className="header-section">
@@ -44,6 +52,15 @@ const AssetsPage = () => {
             Assign Asset to Employee
           </button>
         </div>
+      </div>
+
+      <div className="search-bar">
+        <input
+          type="text"
+          placeholder="Search assets..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
       </div>
 
       {loading ? (
@@ -64,7 +81,7 @@ const AssetsPage = () => {
               </tr>
             </thead>
             <tbody>
-              {assets.map((asset) => (
+              {filteredAssets.map((asset) => (
                 <tr key={asset._id}>
                   <td>{asset.name}</td>
                   <td>{asset.type}</td>
@@ -87,10 +104,10 @@ const AssetsPage = () => {
                   </td>
                 </tr>
               ))}
-              {assets.length === 0 && (
+              {filteredAssets.length === 0 && (
                 <tr>
                   <td colSpan="6" style={{ textAlign: "center", padding: "20px" }}>
-                    No assets found.
+                    No matching assets found.
                   </td>
                 </tr>
               )}

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { forgotPassword } from '../../slices/authSlice';
+import { forgotPassword } from '../../../slices/authSlice';
 
 const ForgotPasswordPage = () => {
   const dispatch = useDispatch();

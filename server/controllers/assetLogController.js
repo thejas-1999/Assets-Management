@@ -6,12 +6,24 @@ import asyncHandler from "../middleware/asyncHandler.js";
 // @access  Admin or SuperAdmin
 const getAllAssetLogs = asyncHandler(async (req, res) => {
   const logs = await AssetLog.find()
-    .populate('asset', 'name serialNumber')
+    .populate('asset', 'name serialNumber category')
     .populate('performedBy', 'name email')
     .populate('targetUser', 'name email')
-    .sort({ createdAt: -1 });
+    .sort({ date: -1 });
 
   res.json(logs);
 });
 
-export { getAllAssetLogs };
+// @desc    Get logs for a specific asset
+// @route   GET /api/asset-logs/:assetId
+// @access  Admin or SuperAdmin
+const getLogsByAssetId = asyncHandler(async (req, res) => {
+  const logs = await AssetLog.find({ asset: req.params.assetId })
+    .populate('performedBy', 'name email')
+    .populate('targetUser', 'name email')
+    .sort({ date: -1 });
+
+  res.json(logs);
+});
+
+export { getAllAssetLogs, getLogsByAssetId };

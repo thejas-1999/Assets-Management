@@ -3,7 +3,11 @@ import mongoose from "mongoose";
 const assetSchema = new mongoose.Schema(
   {
     name: { type: String, required: true }, // e.g., Dell XPS 15
-    type: { type: String, required: true }, // e.g., Laptop, Phone
+    category: {
+      type: String,
+      enum: ['Laptop', 'Mouse', 'Keyboard', 'Mobile Phone', 'Monitor', 'Tablet', 'Other'],
+      required: true,
+    },
     serialNumber: { type: String, required: true, unique: true },
     status: {
       type: String,
@@ -14,12 +18,13 @@ const assetSchema = new mongoose.Schema(
     assignedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
     assignedDate: { type: Date },
     returnedDate: { type: Date },
-    specifications: { type: String }, // optional details like RAM, storage
+    specifications: { type: String },
   },
   {
     timestamps: true,
   }
 );
+
 
 const Asset = mongoose.model("Asset", assetSchema);
 export default Asset;

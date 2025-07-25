@@ -2,7 +2,7 @@
 import { useDispatch } from "react-redux";
 import { logout } from "../../../slices/authSlice";
 import { useNavigate } from "react-router-dom";
-import "./AdminDashboard.css"; // External CSS for styling
+import "./adminDashboard.css"; // ✅ Updated import (regular CSS)
 
 const AdminDashBoard = () => {
   const dispatch = useDispatch();
@@ -26,10 +26,10 @@ const AdminDashBoard = () => {
   };
 
   return (
-    <div className="admin-dashboard">
-      <div className="dashboard-header">
-        <div className="header-content">
-          <h1 className="dashboard-title">
+    <div className="adminDashboard">
+      <div className="dashboardHeader">
+        <div className="headerContent">
+          <h1 className="dashboardTitle">
             <span className="title-icon">⚡</span>
             Admin Dashboard
           </h1>
@@ -38,7 +38,7 @@ const AdminDashBoard = () => {
               <span className="user-avatar">👤</span>
               <span className="user-name">Administrator</span>
             </div>
-            <button onClick={handleLogout} className="logout-btn">
+            <button onClick={handleLogout} className="logoutBtn">
               <span className="btn-icon">🚪</span>
               Logout
             </button>
@@ -55,26 +55,26 @@ const AdminDashBoard = () => {
           </p>
         </div>
 
-        <div className="stats-grid">
-          <div className="stat-card">
+        <div className="statsSection">
+          <div className="statCard">
             <div className="stat-icon">👥</div>
             <div className="stat-info">
               <h3>Total Employees</h3>
-              <p className="stat-number">142</p>
+              <p className="statNumber">142</p>
             </div>
           </div>
-          <div className="stat-card">
+          <div className="statCard">
             <div className="stat-icon">💼</div>
             <div className="stat-info">
               <h3>Active Assets</h3>
-              <p className="stat-number">89</p>
+              <p className="statNumber">89</p>
             </div>
           </div>
-          <div className="stat-card">
+          <div className="statCard">
             <div className="stat-icon">📊</div>
             <div className="stat-info">
               <h3>Departments</h3>
-              <p className="stat-number">12</p>
+              <p className="statNumber">12</p>
             </div>
           </div>
         </div>
@@ -94,7 +94,7 @@ const AdminDashBoard = () => {
               <span className="feature-tag">✓ Department Management</span>
               <span className="feature-tag">✓ Performance Tracking</span>
             </div>
-            <button onClick={goToEmployees} className="card-btn primary-btn">
+            <button onClick={goToEmployees} className="cardBtn primaryBtn">
               <span className="btn-icon">👀</span>
               View Employees
             </button>
@@ -113,12 +113,13 @@ const AdminDashBoard = () => {
               <span className="feature-tag">✓ Assignment Management</span>
               <span className="feature-tag">✓ Maintenance Records</span>
             </div>
-            <button onClick={goToAssets} className="card-btn secondary-btn">
+            <button onClick={goToAssets} className="cardBtn secondaryBtn">
               <span className="btn-icon">📋</span>
               View Assets
             </button>
           </div>
         </div>
+
         <div className="dashboard-card request-card">
           <div className="card-header">
             <div className="card-icon">📨</div>
@@ -132,13 +133,13 @@ const AdminDashBoard = () => {
             <span className="feature-tag">✓ Approval Management</span>
             <span className="feature-tag">✓ User Interaction</span>
           </div>
-          <button onClick={goToRequests} className="card-btn tertiary-btn">
+          <button onClick={goToRequests} className="cardBtn tertiaryBtn">
             <span className="btn-icon">📨</span>
             Show Requests
           </button>
         </div>
 
-        <div className="quick-actions">
+        <div className="quickActions">
           <h3 className="section-title">Quick Actions</h3>
           <div className="action-buttons">
             <button className="action-btn">
