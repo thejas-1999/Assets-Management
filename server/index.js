@@ -10,6 +10,7 @@ import userRoutes from "./routers/userRoutes.js";
 import assetRoutes from "./routers/assetRoutes.js";
 import assetLogRoutes from "./routers/assetLogRoutes.js";
 import { notFound, errorHandler } from "./middleware/errorMiddleware.js";
+import settingRoutes from './routers/settingRoutes.js';
 
 connectDB();
 
@@ -32,6 +33,7 @@ app.use(cors({
 app.use("/api/users", userRoutes);
 app.use("/api/assets", assetRoutes);
 app.use("/api/asset-logs", assetLogRoutes);
+app.use('/api/settings', settingRoutes);
 
 // Error Handling
 app.use(notFound);

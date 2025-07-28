@@ -1,8 +1,8 @@
-// pages/AdminDashBoard.jsx
+import React from "react";
+import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { logout } from "../../../slices/authSlice";
-import { useNavigate } from "react-router-dom";
-import "./adminDashboard.css"; // ✅ Updated import (regular CSS)
+import "./adminDashBoard.css";
 
 const AdminDashBoard = () => {
   const dispatch = useDispatch();
@@ -10,7 +10,7 @@ const AdminDashBoard = () => {
 
   const handleLogout = () => {
     dispatch(logout());
-    navigate("/");
+    navigate("/login");
   };
 
   const goToEmployees = () => {
@@ -25,60 +25,47 @@ const AdminDashBoard = () => {
     navigate("/admin/assets/showRequest");
   };
 
+  const goToSettings = () => {
+    navigate("/admin/settings");
+  };
+
   return (
-    <div className="adminDashboard">
-      <div className="dashboardHeader">
-        <div className="headerContent">
-          <h1 className="dashboardTitle">
-            <span className="title-icon">⚡</span>
-            Admin Dashboard
-          </h1>
-          <div className="header-actions">
-            <div className="user-info">
-              <span className="user-avatar">👤</span>
-              <span className="user-name">Administrator</span>
-            </div>
-            <button onClick={handleLogout} className="logoutBtn">
-              <span className="btn-icon">🚪</span>
-              Logout
-            </button>
-          </div>
-        </div>
-      </div>
+    <div className="admin-dashboard">
+      
+      <header className="dashboard-header">
+        <h1>Admin Dashboard</h1>
+        <p>Welcome to the asset management admin panel</p>
+        
+      </header>
+      
 
-      <div className="dashboard-content">
-        <div className="welcome-section">
-          <h2 className="welcome-title">Welcome back!</h2>
-          <p className="welcome-text">
-            Manage your organization efficiently with our comprehensive admin
-            tools.
-          </p>
+      <section className="dashboard-section quick-actions">
+        <h2>Quick Actions</h2>
+        <div className="actions-grid">
+          <button className="action-btn" onClick={goToEmployees}>
+            <span className="action-icon">👥</span>
+            Manage Employees
+          </button>
+          <button className="action-btn" onClick={goToAssets}>
+            <span className="action-icon">💼</span>
+            Manage Assets
+          </button>
+          <button className="action-btn" onClick={goToRequests}>
+            <span className="action-icon">📩</span>
+            View Requests
+          </button>
+          <button className="action-btn" onClick={goToSettings}>
+            <span className="action-icon">⚙️</span>
+            Settings
+          </button>
+          <button className="logout-btn" onClick={handleLogout}>
+          🔓 Logout
+        </button>
         </div>
+      </section>
 
-        <div className="statsSection">
-          <div className="statCard">
-            <div className="stat-icon">👥</div>
-            <div className="stat-info">
-              <h3>Total Employees</h3>
-              <p className="statNumber">142</p>
-            </div>
-          </div>
-          <div className="statCard">
-            <div className="stat-icon">💼</div>
-            <div className="stat-info">
-              <h3>Active Assets</h3>
-              <p className="statNumber">89</p>
-            </div>
-          </div>
-          <div className="statCard">
-            <div className="stat-icon">📊</div>
-            <div className="stat-info">
-              <h3>Departments</h3>
-              <p className="statNumber">12</p>
-            </div>
-          </div>
-        </div>
-
+      <section className="dashboard-section">
+        <h2>Overview</h2>
         <div className="card-grid">
           <div className="dashboard-card employee-card">
             <div className="card-header">
@@ -86,17 +73,16 @@ const AdminDashBoard = () => {
               <h2>Employee Management</h2>
             </div>
             <p className="card-description">
-              Manage and monitor employee details, departments, and performance
-              metrics.
+              View, add, and manage employee details and access levels.
             </p>
             <div className="card-features">
-              <span className="feature-tag">✓ Employee Profiles</span>
-              <span className="feature-tag">✓ Department Management</span>
-              <span className="feature-tag">✓ Performance Tracking</span>
+              <span className="feature-tag">✓ Add Employee</span>
+              <span className="feature-tag">✓ Update Info</span>
+              <span className="feature-tag">✓ Role Access</span>
             </div>
-            <button onClick={goToEmployees} className="cardBtn primaryBtn">
-              <span className="btn-icon">👀</span>
-              View Employees
+            <button onClick={goToEmployees} className="cardBtn">
+              <span className="btn-icon">👥</span>
+              Go to Employees
             </button>
           </div>
 
@@ -106,61 +92,58 @@ const AdminDashBoard = () => {
               <h2>Asset Management</h2>
             </div>
             <p className="card-description">
-              Track, assign, and maintain office assets and equipment inventory.
+              Add, assign, and manage assets across departments.
             </p>
             <div className="card-features">
-              <span className="feature-tag">✓ Asset Tracking</span>
-              <span className="feature-tag">✓ Assignment Management</span>
-              <span className="feature-tag">✓ Maintenance Records</span>
+              <span className="feature-tag">✓ Assign Asset</span>
+              <span className="feature-tag">✓ Return Asset</span>
+              <span className="feature-tag">✓ Asset Logs</span>
             </div>
-            <button onClick={goToAssets} className="cardBtn secondaryBtn">
-              <span className="btn-icon">📋</span>
-              View Assets
+            <button onClick={goToAssets} className="cardBtn">
+              <span className="btn-icon">💼</span>
+              Go to Assets
             </button>
           </div>
-        </div>
 
-        <div className="dashboard-card request-card">
-          <div className="card-header">
-            <div className="card-icon">📨</div>
-            <h2>Asset Requests</h2>
+          <div className="dashboard-card request-card">
+            <div className="card-header">
+              <div className="card-icon">📩</div>
+              <h2>Asset Requests</h2>
+            </div>
+            <p className="card-description">
+              View and manage pending asset allocation requests.
+            </p>
+            <div className="card-features">
+              <span className="feature-tag">✓ View Requests</span>
+              <span className="feature-tag">✓ Approve / Reject</span>
+              <span className="feature-tag">✓ Track History</span>
+            </div>
+            <button onClick={goToRequests} className="cardBtn">
+              <span className="btn-icon">📩</span>
+              Go to Requests
+            </button>
           </div>
-          <p className="card-description">
-            View, approve, or reject asset requests made by employees.
-          </p>
-          <div className="card-features">
-            <span className="feature-tag">✓ Request Tracking</span>
-            <span className="feature-tag">✓ Approval Management</span>
-            <span className="feature-tag">✓ User Interaction</span>
-          </div>
-          <button onClick={goToRequests} className="cardBtn tertiaryBtn">
-            <span className="btn-icon">📨</span>
-            Show Requests
-          </button>
-        </div>
 
-        <div className="quickActions">
-          <h3 className="section-title">Quick Actions</h3>
-          <div className="action-buttons">
-            <button className="action-btn">
-              <span className="action-icon">➕</span>
-              Add Employee
-            </button>
-            <button className="action-btn">
-              <span className="action-icon">📦</span>
-              Add Asset
-            </button>
-            <button className="action-btn">
-              <span className="action-icon">📊</span>
-              Generate Report
-            </button>
-            <button className="action-btn">
-              <span className="action-icon">⚙️</span>
-              Settings
+          <div className="dashboard-card settings-card">
+            <div className="card-header">
+              <div className="card-icon">⚙️</div>
+              <h2>Configuration</h2>
+            </div>
+            <p className="card-description">
+              Customize asset types, user roles, and system settings.
+            </p>
+            <div className="card-features">
+              <span className="feature-tag">✓ Asset Type Management</span>
+              <span className="feature-tag">✓ Role Config</span>
+              <span className="feature-tag">✓ System Defaults</span>
+            </div>
+            <button onClick={goToSettings} className="cardBtn secondaryBtn">
+              <span className="btn-icon">⚙️</span>
+              Go to Settings
             </button>
           </div>
         </div>
-      </div>
+      </section>
     </div>
   );
 };

@@ -50,7 +50,7 @@ const AssignAssetPage = () => {
           await dispatch(updateRequestStatus({ id: requestId, status: 'approved' }));
         }
         alert('Asset assigned successfully!');
-        navigate('/admin/assets/showRequest');
+        navigate("/admin/assets");
       }
     }
   };
