@@ -26,6 +26,7 @@ import AssignAssetPage from "./pages/assets/assignAssets/AssignAssetPage";
 import AdminRequestShowPage from "./pages/adminrequestshowpage/AdminRequestShowPage";
 import ForgotPasswordPage from "./pages/auth/forgot/ForgotPasswordPage";
 import ResetPasswordPage from "./pages/auth/reset/ResetPasswordPage";
+import AssetHistoryPage from "./pages/assets/assetHistory/AssetHistoryPage";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -55,6 +56,8 @@ const router = createBrowserRouter(
         <Route path="/admin/assets/edit/:id" element={<AssetEditPage />} />
         <Route path="/admin/assets/assign" element={<AssignAssetPage />} />
         <Route path="/admin/assets/showRequest" element={<AdminRequestShowPage />} />
+        <Route path="/admin/assets/history/:assetId" element={<AssetHistoryPage />} />
+
       </Route>
 
       {/* ✅ Protected Employee Route */}

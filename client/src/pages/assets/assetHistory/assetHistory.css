@@ -1,0 +1,20 @@
+.asset-history-container {
+  padding: 2rem;
+}
+
+.history-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+.history-table th,
+.history-table td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: center;
+}
+
+.history-table th {
+  background-color: #f2f2f2;
+}

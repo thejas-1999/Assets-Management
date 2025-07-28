@@ -10,6 +10,11 @@ const AssetsPage = () => {
   const { assets, loading, error } = useSelector((state) => state.asset);
 
   const [searchTerm, setSearchTerm] = useState("");
+  const [availabilityFilter, setAvailabilityFilter] = useState("all");
+  const [categoryFilter, setCategoryFilter] = useState("all");
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   useEffect(() => {
     dispatch(fetchAssets());
@@ -35,12 +40,33 @@ const AssetsPage = () => {
     navigate(`/admin/assets/edit/${id}`);
   };
 
-  const filteredAssets = assets.filter((asset) =>
-    [asset.name, asset.type, asset.serialNumber]
-      .join(" ")
-      .toLowerCase()
-      .includes(searchTerm.toLowerCase())
+  const handleViewHistory = (id) => {
+    navigate(`/admin/assets/history/${id}`);
+  };
+
+  // Filter logic
+  const filteredAssets = assets
+    .filter((asset) =>
+      [asset.name, asset.category, asset.serialNumber]
+        .join(" ")
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase())
+    )
+    .filter((asset) =>
+      availabilityFilter === "all" ? true : asset.status === availabilityFilter
+    )
+    .filter((asset) =>
+      categoryFilter === "all" ? true : asset.category === categoryFilter
+    );
+
+  // Pagination logic
+  const totalPages = Math.ceil(filteredAssets.length / itemsPerPage);
+  const paginatedAssets = filteredAssets.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
   );
+
+  const uniqueCategories = [...new Set(assets.map((a) => a.category))];
 
   return (
     <div className="assets-container">
@@ -61,6 +87,33 @@ const AssetsPage = () => {
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
+
+        <select
+          value={availabilityFilter}
+          onChange={(e) => {
+            setAvailabilityFilter(e.target.value);
+            setCurrentPage(1);
+          }}
+        >
+          <option value="all">All Status</option>
+          <option value="available">Available</option>
+          <option value="assigned">Assigned</option>
+        </select>
+
+        <select
+          value={categoryFilter}
+          onChange={(e) => {
+            setCategoryFilter(e.target.value);
+            setCurrentPage(1);
+          }}
+        >
+          <option value="all">All Categories</option>
+          {uniqueCategories.map((cat) => (
+            <option key={cat} value={cat}>
+              {cat}
+            </option>
+          ))}
+        </select>
       </div>
 
       {loading ? (
@@ -73,7 +126,7 @@ const AssetsPage = () => {
             <thead>
               <tr>
                 <th>Name</th>
-                <th>Type</th>
+                <th>Category</th>
                 <th>Serial No</th>
                 <th>Status</th>
                 <th>Assigned To</th>
@@ -81,18 +134,17 @@ const AssetsPage = () => {
               </tr>
             </thead>
             <tbody>
-              {filteredAssets.map((asset) => (
+              {paginatedAssets.map((asset) => (
                 <tr key={asset._id}>
                   <td>{asset.name}</td>
-                  <td>{asset.type}</td>
+                  <td>{asset.category}</td>
                   <td>{asset.serialNumber}</td>
                   <td>{asset.status}</td>
                   <td>{asset.assignedTo ? asset.assignedTo.name : "—"}</td>
                   <td>
+                    <button onClick={() => handleViewHistory(asset._id)}>History</button>
                     {asset.status !== "available" && (
-                      <button onClick={() => handleReturn(asset._id)}>
-                        Return
-                      </button>
+                      <button onClick={() => handleReturn(asset._id)}>Return</button>
                     )}
                     <button onClick={() => handleEdit(asset._id)}>Edit</button>
                     <button
@@ -104,7 +156,7 @@ const AssetsPage = () => {
                   </td>
                 </tr>
               ))}
-              {filteredAssets.length === 0 && (
+              {paginatedAssets.length === 0 && (
                 <tr>
                   <td colSpan="6" style={{ textAlign: "center", padding: "20px" }}>
                     No matching assets found.
@@ -113,6 +165,27 @@ const AssetsPage = () => {
               )}
             </tbody>
           </table>
+
+          {/* Pagination controls */}
+          {totalPages > 1 && (
+            <div className="pagination-controls">
+              <button
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage((prev) => prev - 1)}
+              >
+                Previous
+              </button>
+              <span>
+                Page {currentPage} of {totalPages}
+              </span>
+              <button
+                disabled={currentPage === totalPages}
+                onClick={() => setCurrentPage((prev) => prev + 1)}
+              >
+                Next
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>

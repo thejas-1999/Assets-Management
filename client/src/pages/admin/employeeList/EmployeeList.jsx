@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchEmployees, deleteEmployee } from "../../../slices/employeeSlice";
 import { useNavigate } from "react-router-dom";
-import './employeeList.css'
+import './employeeList.css';
 
 const EmployeeList = () => {
   const dispatch = useDispatch();
@@ -13,6 +13,9 @@ const EmployeeList = () => {
   const [filterRole, setFilterRole] = useState("all");
   const [sortBy, setSortBy] = useState("name");
   const [sortOrder, setSortOrder] = useState("asc");
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const EMPLOYEES_PER_PAGE = 10;
 
   useEffect(() => {
     dispatch(fetchEmployees());
@@ -49,8 +52,8 @@ const EmployeeList = () => {
   const filteredEmployees = list
     .filter((emp) => {
       const matchesSearch = emp.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                            emp.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                            emp.designation.toLowerCase().includes(searchTerm.toLowerCase());
+        emp.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        emp.designation.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesRole = filterRole === "all" || emp.role === filterRole;
       return matchesSearch && matchesRole;
     })
@@ -59,6 +62,16 @@ const EmployeeList = () => {
       const valB = b[sortBy]?.toLowerCase() || "";
       return sortOrder === "asc" ? valA.localeCompare(valB) : valB.localeCompare(valA);
     });
+
+  const totalPages = Math.ceil(filteredEmployees.length / EMPLOYEES_PER_PAGE);
+  const paginatedEmployees = filteredEmployees.slice(
+    (currentPage - 1) * EMPLOYEES_PER_PAGE,
+    currentPage * EMPLOYEES_PER_PAGE
+  );
+
+  const goToPage = (page) => {
+    if (page >= 1 && page <= totalPages) setCurrentPage(page);
+  };
 
   return (
     <div className="employee-list-container">
@@ -75,9 +88,15 @@ const EmployeeList = () => {
           type="text"
           placeholder="Search by name, email, designation..."
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          onChange={(e) => {
+            setSearchTerm(e.target.value);
+            setCurrentPage(1);
+          }}
         />
-        <select value={filterRole} onChange={(e) => setFilterRole(e.target.value)}>
+        <select value={filterRole} onChange={(e) => {
+          setFilterRole(e.target.value);
+          setCurrentPage(1);
+        }}>
           <option value="all">All Roles</option>
           <option value="admin">Admin</option>
           <option value="user">User</option>
@@ -115,10 +134,10 @@ const EmployeeList = () => {
           </tr>
         </thead>
         <tbody>
-          {filteredEmployees.length === 0 ? (
+          {paginatedEmployees.length === 0 ? (
             <tr><td colSpan="6">No employees found.</td></tr>
           ) : (
-            filteredEmployees.map((emp) => (
+            paginatedEmployees.map((emp) => (
               <tr key={emp._id}>
                 <td>{emp.name}</td>
                 <td>{emp.email}</td>
@@ -138,6 +157,21 @@ const EmployeeList = () => {
           )}
         </tbody>
       </table>
+
+      {/* Pagination Controls */}
+      <div className="pagination">
+        <button onClick={() => goToPage(currentPage - 1)} disabled={currentPage === 1}>Prev</button>
+        {Array.from({ length: totalPages }, (_, i) => (
+          <button
+            key={i + 1}
+            className={currentPage === i + 1 ? "active" : ""}
+            onClick={() => goToPage(i + 1)}
+          >
+            {i + 1}
+          </button>
+        ))}
+        <button onClick={() => goToPage(currentPage + 1)} disabled={currentPage === totalPages}>Next</button>
+      </div>
     </div>
   );
 };

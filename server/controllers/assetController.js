@@ -110,41 +110,51 @@ const deleteAssetById = asyncHandler(async (req, res) => {
 // @route   PUT /api/assets/:id/assign
 // @access  Admin or SuperAdmin
 const assignAsset = asyncHandler(async (req, res) => {
-  const asset = await Asset.findById(req.params.id);
-  const { userId } = req.body;
-  const user = await User.findById(userId);
+  try {
+    const asset = await Asset.findById(req.params.id);
+    const { userId } = req.body;
 
-  if (!user) {
-    res.status(404);
-    throw new Error("User not found");
+    console.log("Assigning asset:", asset);
+    console.log("Assigning to user:", userId);
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (!asset) {
+      return res.status(404).json({ message: "Asset not found" });
+    }
+
+    if (asset.status === "assigned") {
+      return res.status(400).json({ message: "Asset is already assigned" });
+    }
+
+    asset.assignedTo = userId;
+    asset.assignedBy = req.user._id;
+    asset.assignedDate = new Date();
+    asset.status = "assigned";
+
+    const updated = await asset.save();
+
+    await AssetLog.create({
+      asset: asset._id,
+      action: "assigned",
+      performedBy: req.user._id,
+      targetUser: userId,
+      assignedDate: asset.assignedDate,
+      note: `Asset assigned to ${user?.name || 'Unknown'}`,
+    });
+
+    res.json(updated);
+  } catch (error) {
+    console.error("Asset assignment failed:", error);
+    res.status(500).json({ message: error.message });
   }
-  if (!asset) {
-    res.status(404);
-    throw new Error("Asset not found");
-  }
-  if (asset.status === "assigned") {
-    res.status(400);
-    throw new Error("Asset is already assigned");
-  }
-
-  asset.assignedTo = userId;
-  asset.assignedBy = req.user._id;
-  asset.assignedDate = new Date();
-  asset.status = "assigned";
-
-  const updated = await asset.save();
-
-  await AssetLog.create({
-    asset: asset._id,
-    action: "assigned",
-    performedBy: req.user._id,
-    targetUser: userId,
-    assignedDate: asset.assignedDate,
-    note: `Asset assigned to ${user.name}`,
-  });
-
-  res.json(updated);
 });
+
+
 
 // @desc    Mark asset as returned
 // @route   PUT /api/assets/:id/return
