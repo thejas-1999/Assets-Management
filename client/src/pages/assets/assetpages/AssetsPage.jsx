@@ -85,6 +85,7 @@ const AssetsPage = () => {
           type="text"
           placeholder="Search assets..."
           value={searchTerm}
+          className="search-box"
           onChange={(e) => setSearchTerm(e.target.value)}
         />
 

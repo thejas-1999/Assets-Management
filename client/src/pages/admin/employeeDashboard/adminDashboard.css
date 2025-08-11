@@ -80,12 +80,14 @@ body {
   --transition-base: 0.25s ease-out;
   --transition-slow: 0.4s ease-out;
   
-  /* Container Widths */
-  --container-sm: 640px;
-  --container-md: 768px;
-  --container-lg: 1024px;
-  --container-xl: 1280px;
-  --container-2xl: 1536px;
+  /* Container Widths - DOUBLED WIDTH */
+  --container-sm: 1280px;   /* Doubled from 640px */
+  --container-md: 1536px;   /* Doubled from 768px */
+  --container-lg: 2048px;   /* Doubled from 1024px */
+  --container-xl: 2560px;   /* Doubled from 1280px */
+  --container-2xl: 4800px;  /* Doubled from 2400px */
+  --container-3xl: 5600px;  /* Doubled from 2800px */
+  --container-full: 98vw;   /* Nearly full viewport width */
 }
 
 /* Container System */
@@ -102,11 +104,13 @@ body {
 .container-lg { max-width: var(--container-lg); }
 .container-xl { max-width: var(--container-xl); }
 .container-2xl { max-width: var(--container-2xl); }
+.container-3xl { max-width: var(--container-3xl); }
+.container-full { max-width: var(--container-full); }
 
-/* Main Dashboard Container */
+/* Main Dashboard Container - MUCH WIDER */
 .admin-dashboard {
   width: 100%;
-  max-width: var(--container-2xl);
+  max-width: var(--container-3xl); /* Using the new ultra-wide container */
   margin: 0 auto;
   padding: var(--spacing-xl) var(--spacing-lg);
   min-height: 100vh;
@@ -297,7 +301,7 @@ body {
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
 }
 
-/* Card Grid */
+/* Card Grid - OPTIMIZED FOR WIDER LAYOUT */
 .card-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
@@ -305,9 +309,28 @@ body {
   width: 100%;
 }
 
+/* For ultra-wide screens, allow more columns - DOUBLED BREAKPOINTS */
+@media (min-width: 4000px) {
+  .card-grid {
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: var(--spacing-3xl);
+  }
+  
+  .actions-grid {
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: var(--spacing-2xl);
+  }
+}
+
+@media (min-width: 4800px) {
+  .card-grid {
+    grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+  }
+}
+
 /* Dashboard Cards */
 .dashboard-card {
-  background: rgba(255, 255, 255, 0.96);
+  background: rgba(30, 41, 59, 0.95);
   border-radius: var(--radius-xl);
   padding: var(--spacing-2xl);
   box-shadow: var(--shadow-2xl);
@@ -469,14 +492,22 @@ body {
 .request-card::before { background: linear-gradient(135deg, #f59e0b, #d97706); }
 .settings-card::before { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
 
-/* Responsive Design System */
-@media (max-width: 1536px) {
+/* Responsive Design System - DOUBLED BREAKPOINTS */
+@media (max-width: 5600px) {
+  .admin-dashboard { max-width: var(--container-2xl); }
+}
+
+@media (max-width: 4800px) {
   .admin-dashboard { max-width: var(--container-xl); }
 }
 
-@media (max-width: 1280px) {
+@media (max-width: 3072px) {
   .admin-dashboard { max-width: var(--container-lg); }
   .card-grid { grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
+}
+
+@media (max-width: 2560px) {
+  .admin-dashboard { max-width: var(--container-md); }
 }
 
 @media (max-width: 1024px) {
