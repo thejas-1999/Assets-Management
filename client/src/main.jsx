@@ -12,7 +12,7 @@ import {
 
 import LoginPage from "./pages/auth/login/LoginPage";
 import AdminDashBoard from "./pages/admin/employeeDashboard/AdminDashboard";
-import EmployeeDashboard from "./pages/employees/employeeDashboard/EmployeeDashboard"
+import EmployeeDashboard from "./pages/employees/employeeDashboard/EmployeeDashboard";
 import UnauthorizedPage from "./pages/unAuthorizedPage";
 import ProtectedRoute from "./components/protectRoute";
 
@@ -28,6 +28,7 @@ import ForgotPasswordPage from "./pages/auth/forgot/ForgotPasswordPage";
 import ResetPasswordPage from "./pages/auth/reset/ResetPasswordPage";
 import AssetHistoryPage from "./pages/assets/assetHistory/AssetHistoryPage";
 import SettingsPage from "./pages/admin/settings/SettingsPage";
+import EmployeeProfilePage from "./pages/admin/employeeProfile/EmployeeProfilePage";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -35,7 +36,7 @@ const router = createBrowserRouter(
       {/* Public Route */}
       <Route index element={<LoginPage />} />
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-<Route path="/reset-password/:token" element={<ResetPasswordPage />} />
+      <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
       <Route path="/unauthorized" element={<UnauthorizedPage />} />
 
       {/* Protected Admin Route */}
@@ -52,14 +53,24 @@ const router = createBrowserRouter(
           path="/admin/employees/edit/:id"
           element={<EmployeeEditPage />}
         />
+        <Route
+          path="/admin/employees/:id/profile"
+          element={<EmployeeProfilePage />}
+        />
+
         <Route path="/admin/assets" element={<AssetsPage />} />
         <Route path="/admin/assets/create" element={<AssetCreatePage />} />
         <Route path="/admin/assets/edit/:id" element={<AssetEditPage />} />
         <Route path="/admin/assets/assign" element={<AssignAssetPage />} />
-        <Route path="/admin/assets/showRequest" element={<AdminRequestShowPage />} />
-        <Route path="/admin/assets/history/:assetId" element={<AssetHistoryPage />} />
+        <Route
+          path="/admin/assets/showRequest"
+          element={<AdminRequestShowPage />}
+        />
+        <Route
+          path="/admin/assets/history/:assetId"
+          element={<AssetHistoryPage />}
+        />
         <Route path="/admin/settings" element={<SettingsPage />} />
-
       </Route>
 
       {/* ✅ Protected Employee Route */}

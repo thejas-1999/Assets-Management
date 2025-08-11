@@ -1,0 +1,261 @@
+/* Employee Profile Page Styles */
+* {
+  box-sizing: border-box;
+}
+
+.employee-profile-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  background-color: #ffffff;
+  min-height: 100vh;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #333333;
+}
+
+/* Header Styles */
+.employee-name {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #2c3e50;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 3px solid #3498db;
+  text-align: center;
+}
+
+/* Employee Information Section */
+.employee-info {
+  font-size: 1.1rem;
+  margin: 0.75rem 0;
+  padding: 0.75rem 1rem;
+  background-color: #f8f9fa;
+  border-left: 4px solid #3498db;
+  border-radius: 0 4px 4px 0;
+  font-weight: 500;
+}
+
+/* Section Titles */
+.section-title {
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin: 2.5rem 0 1.5rem 0;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #ecf0f1;
+  position: relative;
+}
+
+.section-title::before {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 60px;
+  height: 2px;
+  background-color: #3498db;
+}
+
+/* Asset List Styles */
+.asset-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.asset-item {
+  background-color: #ffffff;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 0.75rem;
+  font-weight: 500;
+  color: #495057;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.asset-item:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+  border-color: #3498db;
+}
+
+/* Asset History Table */
+.asset-history-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  background-color: #ffffff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+}
+
+.asset-history-table th {
+  background-color: #3498db;
+  color: #ffffff;
+  font-weight: 600;
+  padding: 1rem;
+  text-align: left;
+  font-size: 0.95rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.asset-history-table td {
+  padding: 0.875rem 1rem;
+  border-bottom: 1px solid #ecf0f1;
+  font-size: 0.95rem;
+  color: #495057;
+}
+
+.asset-history-table tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+.asset-history-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Status and Message Styles */
+.loading-text {
+  text-align: center;
+  font-size: 1.2rem;
+  color: #6c757d;
+  margin: 3rem 0;
+  font-weight: 500;
+}
+
+.error-text {
+  text-align: center;
+  font-size: 1.1rem;
+  color: #dc3545;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 6px;
+  padding: 1rem;
+  margin: 2rem 0;
+  font-weight: 500;
+}
+
+.no-data-text {
+  text-align: center;
+  font-size: 1rem;
+  color: #6c757d;
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  padding: 1.5rem;
+  margin: 1rem 0;
+  font-style: italic;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .employee-profile-container {
+    padding: 1rem;
+  }
+
+  .employee-name {
+    font-size: 2rem;
+    text-align: left;
+  }
+
+  .section-title {
+    font-size: 1.5rem;
+  }
+
+  .asset-history-table {
+    font-size: 0.85rem;
+  }
+
+  .asset-history-table th,
+  .asset-history-table td {
+    padding: 0.75rem 0.5rem;
+  }
+
+  /* Stack table on mobile */
+  .asset-history-table,
+  .asset-history-table thead,
+  .asset-history-table tbody,
+  .asset-history-table th,
+  .asset-history-table td,
+  .asset-history-table tr {
+    display: block;
+  }
+
+  .asset-history-table thead tr {
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+  }
+
+  .asset-history-table tr {
+    border: 1px solid #ccc;
+    margin-bottom: 0.5rem;
+    border-radius: 6px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  }
+
+  .asset-history-table td {
+    border: none;
+    position: relative;
+    padding-left: 35%;
+    padding-right: 0.75rem;
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+    text-align: right;
+  }
+
+  .asset-history-table td:before {
+    content: attr(data-label) ": ";
+    position: absolute;
+    left: 0.75rem;
+    width: 30%;
+    padding-right: 0.5rem;
+    white-space: nowrap;
+    font-weight: 600;
+    color: #2c3e50;
+    text-align: left;
+  }
+}
+
+@media (max-width: 480px) {
+  .employee-profile-container {
+    padding: 0.75rem;
+  }
+
+  .employee-name {
+    font-size: 1.75rem;
+  }
+
+  .employee-info {
+    font-size: 1rem;
+    padding: 0.625rem 0.875rem;
+  }
+
+  .section-title {
+    font-size: 1.3rem;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .employee-profile-container {
+    max-width: none;
+    padding: 1rem;
+    box-shadow: none;
+  }
+
+  .asset-item:hover,
+  .asset-history-table tbody tr:hover {
+    box-shadow: none;
+    transform: none;
+  }
+
+  .asset-history-table {
+    break-inside: avoid;
+  }
+}

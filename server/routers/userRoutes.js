@@ -12,6 +12,7 @@ import {
   deleteUser,
   forgotPassword,
   resetPassword,
+  getEmployeeProfile 
 } from "../controllers/userController.js";
 
 import { protect, admin, superAdmin } from "../middleware/authMiddleware.js";
@@ -34,6 +35,8 @@ router.get("/dashboard", protect, getUserDashboard);
 router.get("/", protect, admin, getAllUsers);
 router.get("/:id", protect, admin, getUserById);
 router.put("/:id", protect, admin, updateUser);
+router.get("/:id/profile", protect, admin,getEmployeeProfile);
+
 
 // Superadmin
 router.delete("/:id", protect, superAdmin, deleteUser);

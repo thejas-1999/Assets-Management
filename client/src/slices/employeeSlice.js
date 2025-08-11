@@ -1,6 +1,6 @@
 // src/slices/employeeSlice.js
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import api from '../utiils/api'; // 👈 Use shared Axios instance
+import api from '../utiils/api'; // shared Axios instance
 
 // CREATE employee
 export const createEmployee = createAsyncThunk(
@@ -41,6 +41,21 @@ export const fetchEmployeeById = createAsyncThunk(
   }
 );
 
+// ✅ FETCH employee profile with asset history
+export const getEmployeeProfile = createAsyncThunk(
+  'employees/getEmployeeProfile',
+  async (employeeId, thunkAPI) => {
+    try {
+      // Changed "employees" → "users" to match backend route
+      const res = await api.get(`/users/${employeeId}/profile`);
+      return res.data; // contains employee info + asset history
+    } catch (err) {
+      return thunkAPI.rejectWithValue(err.response?.data?.message || 'Profile fetch failed');
+    }
+  }
+);
+
+
 // UPDATE employee
 export const updateEmployee = createAsyncThunk(
   'employees/update',
@@ -72,12 +87,14 @@ const employeeSlice = createSlice({
   initialState: {
     list: [],
     employee: null,
+    employeeProfile: null, // ✅ stores profile with asset history
     loading: false,
     error: null,
   },
   reducers: {},
   extraReducers: (builder) => {
     builder
+      // FETCH all
       .addCase(fetchEmployees.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -91,6 +108,7 @@ const employeeSlice = createSlice({
         state.error = action.payload;
       })
 
+      // FETCH by ID
       .addCase(fetchEmployeeById.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -104,6 +122,21 @@ const employeeSlice = createSlice({
         state.error = action.payload;
       })
 
+      // ✅ FETCH profile
+      .addCase(getEmployeeProfile.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getEmployeeProfile.fulfilled, (state, action) => {
+        state.loading = false;
+        state.employeeProfile = action.payload;
+      })
+      .addCase(getEmployeeProfile.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      // CREATE
       .addCase(createEmployee.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -117,6 +150,7 @@ const employeeSlice = createSlice({
         state.error = action.payload;
       })
 
+      // UPDATE
       .addCase(updateEmployee.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -133,6 +167,7 @@ const employeeSlice = createSlice({
         state.error = action.payload;
       })
 
+      // DELETE
       .addCase(deleteEmployee.fulfilled, (state, action) => {
         state.list = state.list.filter(emp => emp._id !== action.payload);
       });

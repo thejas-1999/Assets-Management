@@ -5,6 +5,8 @@ import Asset from "../models/assetModel.js"
 import sendEmail from "../utils/sendEmail.js";
 import generateResetToken from '../utils/resetToken.js';
 import crypto from 'crypto'; // for ES Modules
+import AssetLog from "../models/assetLogModel.js";
+
 
 
 
@@ -76,20 +78,20 @@ const loginUser = asyncHandler(async (req, res) => {
 
   const user = await User.findOne({ email });
 
-if (user && (await user.matchPassword(password))) {
-  const token = generateToken(res, user._id); // ✅ Save the token
-  res.status(200).json({
-    _id: user._id,
-    name: user.name,
-    email: user.email,
-    designation: user.designation,
-    phone: user.phone,
-    role: user.role,
-    createdAt: user.createdAt,
-    token, // ✅ Include in response
-  });
-}
- else {
+  if (user && (await user.matchPassword(password))) {
+    const token = generateToken(res, user._id); // ✅ Save the token
+    res.status(200).json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      designation: user.designation,
+      phone: user.phone,
+      role: user.role,
+      createdAt: user.createdAt,
+      token, // ✅ Include in response
+    });
+  }
+  else {
     res.status(401);
     throw new Error("Invalid email or password");
   }
@@ -240,6 +242,78 @@ const deleteUser = asyncHandler(async (req, res) => {
 
 
 
+// controllers/userController.js
+//user profile 
+
+
+// controllers/userController.js
+const getEmployeeProfile = async (req, res) => {
+  try {
+    const { id } = req.params; // Employee ID
+
+    // 1️⃣ Find user details
+    const user = await User.findById(id).select(
+      "-password -resetPasswordToken -resetPasswordExpires"
+    );
+    if (!user) {
+      return res.status(404).json({ message: "Employee not found" });
+    }
+
+    // 2️⃣ Find current assets assigned
+    const currentAssets = await Asset.find({
+      assignedTo: id,
+      status: "assigned"
+    }).select("name category serialNumber returnDate status");
+
+    // 3️⃣ Find asset history from logs
+    const rawHistory = await AssetLog.find({
+      $or: [{ performedBy: id }, { targetUser: id }]
+    })
+      .populate("asset", "name category serialNumber")
+      .populate("performedBy", "name email")
+      .populate("targetUser", "name email")
+      .sort({ date: -1 });
+
+    // 4️⃣ Format history for easier frontend usage
+    // In getEmployeeProfile controller
+    const assetHistory = rawHistory.map(log => ({
+      assetName: log.asset?.name || "Unknown Asset",
+      category: log.asset?.category || "",
+      serialNumber: log.asset?.serialNumber || "",
+      performedBy: log.performedBy?.name || "System",
+      targetUser: log.targetUser?.name || "",
+      date: log.date, // assigned date
+      returnedDate: log.returnedDate || null
+    }));
+
+
+    // 5️⃣ Return flattened profile
+    res.json({
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      designation: user.designation || "Not specified",
+      createdAt: user.createdAt,
+      currentAssets: currentAssets.map(asset => ({
+        name: asset.name,
+        category: asset.category,
+        serialNumber: asset.serialNumber,
+        returnDate: asset.returnedDate || "No return date set",
+        status: asset.status
+      })),
+      assetHistory
+    });
+
+  } catch (error) {
+    console.error("Error fetching employee profile:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+
+
+
+
 
 
 
@@ -307,5 +381,6 @@ export {
   updateUser,
   deleteUser,
   forgotPassword,
-  resetPassword
+  resetPassword,
+  getEmployeeProfile
 };
