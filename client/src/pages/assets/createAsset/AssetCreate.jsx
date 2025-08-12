@@ -11,22 +11,67 @@ const AssetCreatePage = () => {
   const [formData, setFormData] = useState({
     name: '',
     category: '',
-    serialNumber: '',
     specifications: '',
+    purchaseDate: '',
+    purchaseValue: '',
+    quantity: 1,
+    serialNumbers: [''], // Start with one field
+    hasWarranty: false,
+    warrantyStartDate: '',
+    warrantyEndDate: '',
   });
 
   const { loading, error } = useSelector((state) => state.asset);
 
   const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value,
+      [name]: type === 'checkbox' ? checked : value,
+    });
+  };
+
+  // Handle serial number array change
+  const handleSerialNumberChange = (index, value) => {
+    const updated = [...formData.serialNumbers];
+    updated[index] = value;
+    setFormData({ ...formData, serialNumbers: updated });
+  };
+
+  // Adjust serialNumbers array when quantity changes
+  const handleQuantityChange = (e) => {
+    const qty = parseInt(e.target.value) || 1;
+    let updatedSerials = [...formData.serialNumbers];
+
+    if (qty > updatedSerials.length) {
+      updatedSerials = [...updatedSerials, ...Array(qty - updatedSerials.length).fill('')];
+    } else if (qty < updatedSerials.length) {
+      updatedSerials = updatedSerials.slice(0, qty);
+    }
+
+    setFormData({
+      ...formData,
+      quantity: qty,
+      serialNumbers: updatedSerials,
     });
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    dispatch(createAsset(formData))
+
+    if (formData.serialNumbers.length !== formData.quantity) {
+      alert('Number of serial numbers must match quantity');
+      return;
+    }
+
+    // If no warranty, clear warranty dates
+    let submitData = { ...formData };
+    if (!formData.hasWarranty) {
+      submitData.warrantyStartDate = '';
+      submitData.warrantyEndDate = '';
+    }
+
+    dispatch(createAsset(submitData))
       .unwrap()
       .then(() => navigate('/admin/assets'))
       .catch((err) => console.error('Asset creation failed:', err));
@@ -36,30 +81,29 @@ const AssetCreatePage = () => {
     <div className="asset-create-container">
       <h2>Create New Asset</h2>
       {error && <p className="error">{error}</p>}
+
       <form className="asset-form" onSubmit={handleSubmit}>
+        {/* Name */}
         <div className="form-group">
-          <label htmlFor="name">Asset Name</label>
+          <label>Asset Name</label>
           <input
             type="text"
             name="name"
-            id="name"
             required
             value={formData.name}
             onChange={handleChange}
-            className="form-input"
             placeholder="e.g., HP Laptop"
           />
         </div>
 
+        {/* Category */}
         <div className="form-group">
-          <label htmlFor="category">Asset Category</label>
+          <label>Asset Category</label>
           <select
             name="category"
-            id="category"
             required
             value={formData.category}
             onChange={handleChange}
-            className="form-input"
           >
             <option value="">Select a category</option>
             <option value="Laptop">Laptop</option>
@@ -72,32 +116,109 @@ const AssetCreatePage = () => {
           </select>
         </div>
 
+        {/* Specifications */}
         <div className="form-group">
-          <label htmlFor="serialNumber">Serial Number</label>
-          <input
-            type="text"
-            name="serialNumber"
-            id="serialNumber"
-            required
-            value={formData.serialNumber}
-            onChange={handleChange}
-            className="form-input"
-            placeholder="e.g., SN12345678"
-          />
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="specifications">Specifications</label>
+          <label>Specifications</label>
           <textarea
             name="specifications"
-            id="specifications"
             value={formData.specifications}
             onChange={handleChange}
-            className="form-textarea"
             placeholder="e.g., 8GB RAM, 512GB SSD"
           />
         </div>
 
+        {/* Purchase Date */}
+        <div className="form-group">
+          <label>Purchase Date</label>
+          <input
+            type="date"
+            name="purchaseDate"
+            required
+            value={formData.purchaseDate}
+            onChange={handleChange}
+          />
+        </div>
+
+        {/* Purchase Value */}
+        <div className="form-group">
+          <label>Purchase Value</label>
+          <input
+            type="number"
+            name="purchaseValue"
+            required
+            value={formData.purchaseValue}
+            onChange={handleChange}
+            placeholder="e.g., 50000"
+          />
+        </div>
+
+        {/* Quantity */}
+        <div className="form-group">
+          <label>Quantity</label>
+          <input
+            type="number"
+            name="quantity"
+            min="1"
+            required
+            value={formData.quantity}
+            onChange={handleQuantityChange}
+          />
+        </div>
+
+        {/* Serial Numbers */}
+        {formData.serialNumbers.map((sn, index) => (
+          <div className="form-group" key={index}>
+            <label>Serial Number {index + 1}</label>
+            <input
+              type="text"
+              value={sn}
+              required
+              onChange={(e) => handleSerialNumberChange(index, e.target.value)}
+              placeholder={`Serial ${index + 1}`}
+            />
+          </div>
+        ))}
+
+        {/* Warranty */}
+        <div className="form-group">
+          <label>
+            <input
+              type="checkbox"
+              name="hasWarranty"
+              checked={formData.hasWarranty}
+              onChange={handleChange}
+            />{' '}
+            Has Warranty
+          </label>
+        </div>
+
+        {formData.hasWarranty && (
+          <>
+            <div className="form-group">
+              <label>Warranty Start Date</label>
+              <input
+                type="date"
+                name="warrantyStartDate"
+                value={formData.warrantyStartDate}
+                onChange={handleChange}
+                required={formData.hasWarranty}
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Warranty End Date</label>
+              <input
+                type="date"
+                name="warrantyEndDate"
+                value={formData.warrantyEndDate}
+                onChange={handleChange}
+                required={formData.hasWarranty}
+              />
+            </div>
+          </>
+        )}
+
+        {/* Submit */}
         <button type="submit" className="submit-button" disabled={loading}>
           {loading ? 'Creating...' : 'Create Asset'}
         </button>

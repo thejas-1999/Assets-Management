@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchAssets, deleteAsset, returnAsset } from "../../../slices/assetSlice";
+import {
+  fetchAssets,
+  deleteAsset,
+  returnAsset,
+} from "../../../slices/assetSlice";
 import { useNavigate } from "react-router-dom";
 import "./assetPage.css";
 
@@ -44,14 +48,30 @@ const AssetsPage = () => {
     navigate(`/admin/assets/history/${id}`);
   };
 
-  // Filter logic
-  const filteredAssets = assets
-    .filter((asset) =>
-      [asset.name, asset.category, asset.serialNumber]
+  // STEP 1: Expand assets into one row per serial number
+  const expandedAssets = assets.flatMap((asset) =>
+    (asset.serialNumbers && asset.serialNumbers.length > 0
+      ? asset.serialNumbers
+      : ["—"]
+    ).map((serial) => ({
+      ...asset,
+      serialNumbers: [serial],
+      quantity: 1,
+    }))
+  );
+
+  // STEP 2: Apply filtering to the expanded list
+  const filteredAssets = expandedAssets
+    .filter((asset) => {
+      const searchTarget = [
+        asset.name,
+        asset.category,
+        ...(asset.serialNumbers || []),
+      ]
         .join(" ")
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase())
-    )
+        .toLowerCase();
+      return searchTarget.includes(searchTerm.toLowerCase());
+    })
     .filter((asset) =>
       availabilityFilter === "all" ? true : asset.status === availabilityFilter
     )
@@ -59,7 +79,7 @@ const AssetsPage = () => {
       categoryFilter === "all" ? true : asset.category === categoryFilter
     );
 
-  // Pagination logic
+  // STEP 3: Pagination
   const totalPages = Math.ceil(filteredAssets.length / itemsPerPage);
   const paginatedAssets = filteredAssets.slice(
     (currentPage - 1) * itemsPerPage,
@@ -80,13 +100,17 @@ const AssetsPage = () => {
         </div>
       </div>
 
+      {/* Search and filters */}
       <div className="search-bar">
         <input
           type="text"
           placeholder="Search assets..."
           value={searchTerm}
           className="search-box"
-          onChange={(e) => setSearchTerm(e.target.value)}
+          onChange={(e) => {
+            setSearchTerm(e.target.value);
+            setCurrentPage(1);
+          }}
         />
 
         <select
@@ -99,6 +123,8 @@ const AssetsPage = () => {
           <option value="all">All Status</option>
           <option value="available">Available</option>
           <option value="assigned">Assigned</option>
+
+          <option value="maintenance">Maintenance</option>
         </select>
 
         <select
@@ -117,6 +143,7 @@ const AssetsPage = () => {
         </select>
       </div>
 
+      {/* Table */}
       {loading ? (
         <p>Loading...</p>
       ) : error ? (
@@ -128,7 +155,10 @@ const AssetsPage = () => {
               <tr>
                 <th>Name</th>
                 <th>Category</th>
-                <th>Serial No</th>
+                <th>Quantity</th>
+                <th>Serial Number</th>
+                <th>Purchase Date</th>
+                <th>Purchase Value</th>
                 <th>Status</th>
                 <th>Assigned To</th>
                 <th>Actions</th>
@@ -136,17 +166,37 @@ const AssetsPage = () => {
             </thead>
             <tbody>
               {paginatedAssets.map((asset) => (
-                <tr key={asset._id}>
+                <tr key={`${asset._id}-${asset.serialNumbers[0]}`}>
                   <td>{asset.name}</td>
                   <td>{asset.category}</td>
-                  <td>{asset.serialNumber}</td>
+                  <td>1</td>
+                  <td>{asset.serialNumbers[0]}</td>
+                  <td>
+                    {asset.purchaseDate
+                      ? new Date(asset.purchaseDate).toLocaleDateString()
+                      : "—"}
+                  </td>
+                  <td>
+                    {asset.purchaseValue
+                      ? `₹${asset.purchaseValue.toLocaleString()}`
+                      : "—"}
+                  </td>
                   <td>{asset.status}</td>
                   <td>{asset.assignedTo ? asset.assignedTo.name : "—"}</td>
                   <td>
-                    <button onClick={() => handleViewHistory(asset._id)}>History</button>
-                    {asset.status !== "available" && (
-                      <button onClick={() => handleReturn(asset._id)}>Return</button>
-                    )}
+                    <button onClick={() => handleViewHistory(asset._id)}>
+                      History
+                    </button>
+
+                    {/* Hide Return button if asset is in 'available' or in maintenance */}
+                    {asset.status !== "available" &&
+                      asset.status !== "in-repair" &&
+                      asset.status !== "maintenance" && (
+                        <button onClick={() => handleReturn(asset._id)}>
+                          Return
+                        </button>
+                      )}
+
                     <button onClick={() => handleEdit(asset._id)}>Edit</button>
                     <button
                       onClick={() => handleDelete(asset._id)}
@@ -159,7 +209,10 @@ const AssetsPage = () => {
               ))}
               {paginatedAssets.length === 0 && (
                 <tr>
-                  <td colSpan="6" style={{ textAlign: "center", padding: "20px" }}>
+                  <td
+                    colSpan="9"
+                    style={{ textAlign: "center", padding: "20px" }}
+                  >
                     No matching assets found.
                   </td>
                 </tr>
@@ -167,7 +220,7 @@ const AssetsPage = () => {
             </tbody>
           </table>
 
-          {/* Pagination controls */}
+          {/* Pagination */}
           {totalPages > 1 && (
             <div className="pagination-controls">
               <button

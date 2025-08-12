@@ -3,27 +3,11 @@ import bcrypt from "bcryptjs";
 
 const userSchema = new mongoose.Schema(
   {
-    name: {
-      type: String,
-      required: true,
-    },
-    email: {
-      type: String,
-      required: true,
-      unique: true,
-    },
-    password: {
-      type: String,
-      required: true,
-    },
-    designation: {
-      type: String,
-      required: true,
-    },
-    phone: {
-      type: String,
-      required: true,
-    },
+    name: { type: String, required: true },
+    email: { type: String, required: true, unique: true },
+    password: { type: String, required: true },
+    designation: { type: String, required: true },
+    phone: { type: String, required: true },
     role: {
       type: String,
       enum: ['superadmin', 'admin', 'user'],
@@ -33,10 +17,33 @@ const userSchema = new mongoose.Schema(
     resetPasswordToken: String,
     resetPasswordExpires: Date,
 
+    // Assets currently assigned to user
+    currentAssets: [
+      {
+        asset: { type: mongoose.Schema.Types.ObjectId, ref: 'Asset' },
+        assignedDate: Date
+      }
+    ],
+
+    // Full history of assets used by this user
+    assetHistory: [
+      {
+        asset: { type: mongoose.Schema.Types.ObjectId, ref: 'Asset' },
+        assignedDate: Date,
+        returnedDate: Date
+      }
+    ],
+
+    // Asset request history
+    assetRequests: [
+      {
+        asset: { type: mongoose.Schema.Types.ObjectId, ref: 'Asset' },
+        requestDate: Date,
+        status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' }
+      }
+    ]
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true }
 );
 
 // Compare entered password with stored hash

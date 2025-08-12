@@ -1,22 +1,22 @@
-  import mongoose from "mongoose";
+import mongoose from "mongoose";
 
-  const requestSchema = new mongoose.Schema(
-    {
-      user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-      assetType: { type: String, required: true }, // e.g., Laptop, Phone
-      status: {
-        type: String,
-        enum: ['pending', 'approved', 'rejected'],
-        default: 'pending',
-      },
-      reason: { type: String }, // optional reason for request
-      handledBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, // admin
-      responseNote: { type: String },
+const requestSchema = new mongoose.Schema(
+  {
+    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    assetType: { type: String, required: true }, // e.g., Laptop, Phone
+    asset: { type: mongoose.Schema.Types.ObjectId, ref: 'Asset' }, // Optional: specific asset requested
+    status: {
+      type: String,
+      enum: ['pending', 'approved', 'rejected'],
+      default: 'pending',
     },
-    {
-      timestamps: true,
-    }
-  );
+    reason: { type: String }, // optional reason for request
+    handledBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, // admin
+    responseNote: { type: String },
+    approvedDate: { type: Date }, // when approved/rejected
+  },
+  { timestamps: true }
+);
 
-  const Request = mongoose.model("Request", requestSchema);
-  export default Request;
+const Request = mongoose.model("Request", requestSchema);
+export default Request;

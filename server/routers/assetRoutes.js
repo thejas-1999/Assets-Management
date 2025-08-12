@@ -12,6 +12,8 @@ import {
   getAllRequests,
   updateRequestStatus,
   getMyRequests,
+  startMaintenance,
+  completeMaintenance,
 } from "../controllers/assetController.js";
 
 import { protect, admin } from "../middleware/authMiddleware.js";
@@ -20,6 +22,8 @@ const router = express.Router();
 
 // Admin/SuperAdmin - Create Asset
 router.post("/create", protect, admin, createAsset);
+router.put('/:id/start-maintenance',protect, admin,  startMaintenance);
+router.put('/:id/complete-maintenance',protect, admin,  completeMaintenance);
 
 // Admin/SuperAdmin - Get All Assets
 router.get("/getallassets", protect, admin, getAllAssets);

@@ -11,19 +11,28 @@ import assetRoutes from "./routers/assetRoutes.js";
 import assetLogRoutes from "./routers/assetLogRoutes.js";
 import { notFound, errorHandler } from "./middleware/errorMiddleware.js";
 import settingRoutes from './routers/settingRoutes.js';
+import createSuperAdmin from "./config/superAdminSeeder.js"
 
-connectDB();
+
+
+
+
 
 const app = express();
+// Connect DB first, then create super admin
+connectDB().then(() => {
+  createSuperAdmin();
+});
 
-
-
-app.use(express.json());
-app.use(cookieParser());
 app.use(cors({
   origin: 'http://localhost:5174', 
   credentials: true,              
 }));
+
+
+app.use(express.json());
+app.use(cookieParser());
+
 
 
 

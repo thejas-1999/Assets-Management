@@ -169,6 +169,49 @@ export const fetchAllRequests = createAsyncThunk(
 );
 
 
+// Start maintenance
+const startMaintenance = createAsyncThunk(
+  'assets/startMaintenance',
+  async ({ id, description }, thunkAPI) => {
+    try {
+      const { userInfo } = thunkAPI.getState().auth;
+      const config = {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${userInfo.token}`,
+        },
+      };
+      const { data } = await axios.put(`${API_URL}/${id}/start-maintenance`, { description }, config);
+      return data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.response?.data?.message || error.message);
+    }
+  }
+);
+
+// Complete maintenance
+const completeMaintenance = createAsyncThunk(
+  'assets/completeMaintenance',
+  async ({ id, daysTaken, cost, description }, thunkAPI) => {
+    try {
+      const { userInfo } = thunkAPI.getState().auth;
+      const config = {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${userInfo.token}`,
+        },
+      };
+      const { data } = await axios.put(
+        `${API_URL}/${id}/complete-maintenance`,
+        { daysTaken, cost, description },
+        config
+      );
+      return data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.response?.data?.message || error.message);
+    }
+  }
+);
 
 
 const assetSlice = createSlice({
@@ -292,7 +335,41 @@ const assetSlice = createSlice({
         state.allRequests = state.allRequests.map((r) =>
           r._id === action.payload._id ? action.payload : r
         );
-      });
+      })
+      // Start maintenance reducers
+builder
+  .addCase(startMaintenance.pending, (state) => {
+    state.loading = true;
+    state.error = null;
+  })
+  .addCase(startMaintenance.fulfilled, (state, action) => {
+    state.loading = false;
+    state.assets = state.assets.map((a) =>
+      a._id === action.payload._id ? action.payload : a
+    );
+  })
+  .addCase(startMaintenance.rejected, (state, action) => {
+    state.loading = false;
+    state.error = action.payload;
+  });
+
+// Complete maintenance reducers
+builder
+  .addCase(completeMaintenance.pending, (state) => {
+    state.loading = true;
+    state.error = null;
+  })
+  .addCase(completeMaintenance.fulfilled, (state, action) => {
+    state.loading = false;
+    state.assets = state.assets.map((a) =>
+      a._id === action.payload._id ? action.payload : a
+    );
+  })
+  .addCase(completeMaintenance.rejected, (state, action) => {
+    state.loading = false;
+    state.error = action.payload;
+  });
+
 
 
 
@@ -308,4 +385,6 @@ export {
   createAsset,
   updateAsset,
   assignAsset,
+  startMaintenance,
+  completeMaintenance
 };

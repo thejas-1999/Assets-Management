@@ -23,7 +23,9 @@ const EmployeeProfilePage = () => {
     <div className="employee-profile-container">
       <h1 className="employee-name">{employeeProfile.name}'s Profile</h1>
       <p className="employee-info">Email: {employeeProfile.email}</p>
-      <p className="employee-info">Designation: {employeeProfile.designation}</p>
+      <p className="employee-info">
+        Designation: {employeeProfile.designation}
+      </p>
       <p className="employee-info">
         Joined: {new Date(employeeProfile.createdAt).toLocaleDateString()}
       </p>
@@ -59,7 +61,11 @@ const EmployeeProfilePage = () => {
                 <td>{item.assetName}</td>
                 <td>{item.category}</td>
                 <td>{item.serialNumber}</td>
-                <td>{new Date(item.date).toLocaleDateString()}</td>
+                <td>
+                  {item.assignedDate
+                    ? new Date(item.assignedDate).toLocaleDateString()
+                    : "N/A"}
+                </td>
                 <td>
                   {item.returnedDate
                     ? new Date(item.returnedDate).toLocaleDateString()

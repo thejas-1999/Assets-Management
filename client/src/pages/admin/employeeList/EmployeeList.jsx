@@ -199,48 +199,7 @@ const EmployeeList = () => {
             ))
           )}
         </tbody>
-        <tbody>
-          {paginatedEmployees.length === 0 ? (
-            <tr>
-              <td colSpan="6">No employees found.</td>
-            </tr>
-          ) : (
-            paginatedEmployees.map((emp) => (
-              <tr key={emp._id}>
-                <td>
-                  <Link
-                    to={`/admin/employees/${emp._id}/profile`}
-                    className="text-blue-600 hover:underline"
-                  >
-                    {emp.name}
-                  </Link>
-                </td>
-                <td>{emp.email}</td>
-                <td>{emp.designation}</td>
-                <td>{emp.phone}</td>
-                <td>
-                  <span className={`role-badge ${getRoleColor(emp.role)}`}>
-                    {emp.role}
-                  </span>
-                </td>
-                <td>
-                  <button
-                    className="edit-btn"
-                    onClick={() => handleEdit(emp._id)}
-                  >
-                    ✏️
-                  </button>
-                  <button
-                    className="delete-btn"
-                    onClick={() => handleDelete(emp._id, emp.name)}
-                  >
-                    🗑️
-                  </button>
-                </td>
-              </tr>
-            ))
-          )}
-        </tbody>
+       
       </table>
 
       {/* Pagination Controls */}
