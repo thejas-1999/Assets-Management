@@ -14,6 +14,10 @@ import {
   getMyRequests,
   startMaintenance,
   completeMaintenance,
+  downloadAssetsExcel,
+  downloadAssetsPDF,
+  downloadAssetLogsExcel,
+  downloadAssetLogsPDF
 } from "../controllers/assetController.js";
 
 import { protect, admin } from "../middleware/authMiddleware.js";
@@ -27,6 +31,13 @@ router.put('/:id/complete-maintenance',protect, admin,  completeMaintenance);
 
 // Admin/SuperAdmin - Get All Assets
 router.get("/getallassets", protect, admin, getAllAssets);
+
+
+router.get('/download/excel',protect, admin, downloadAssetsExcel);
+router.get('/download/pdf', protect, admin, downloadAssetsPDF);
+
+router.get('/:id/logs/download/excel',protect, admin, downloadAssetLogsExcel);
+router.get('/:id/logs/download/pdf', protect, admin, downloadAssetLogsPDF);
 
 // Admin/SuperAdmin/User - Get Assets by User ID
 router.get("/user/:userId", protect, getAssetsByUser);

@@ -4,6 +4,7 @@ import {
   fetchAssets,
   deleteAsset,
   returnAsset,
+  downloadAssetsFile, // import this thunk from your slice
 } from "../../../slices/assetSlice";
 import { useNavigate } from "react-router-dom";
 import "./assetPage.css";
@@ -23,6 +24,33 @@ const AssetsPage = () => {
   useEffect(() => {
     dispatch(fetchAssets());
   }, [dispatch]);
+
+  // Utility to download blob files
+  function downloadBlob(data, filename, mimeType) {
+    const url = window.URL.createObjectURL(new Blob([data], { type: mimeType }));
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", filename);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  }
+
+  const handleDownload = async (format) => {
+    const action = await dispatch(downloadAssetsFile(format));
+    if (downloadAssetsFile.fulfilled.match(action)) {
+      const { data } = action.payload;
+      const filename = `assets.${format === "excel" ? "xlsx" : "pdf"}`;
+      const mimeType =
+        format === "excel"
+          ? "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+          : "application/pdf";
+      downloadBlob(data, filename, mimeType);
+    } else {
+      alert("Download failed: " + action.payload);
+    }
+  };
 
   const handleDelete = (id) => {
     if (window.confirm("Are you sure you want to delete this asset?")) {
@@ -48,7 +76,7 @@ const AssetsPage = () => {
     navigate(`/admin/assets/history/${id}`);
   };
 
-  // STEP 1: Expand assets into one row per serial number
+  // Expand assets to one row per serial number
   const expandedAssets = assets.flatMap((asset) =>
     (asset.serialNumbers && asset.serialNumbers.length > 0
       ? asset.serialNumbers
@@ -60,7 +88,7 @@ const AssetsPage = () => {
     }))
   );
 
-  // STEP 2: Apply filtering to the expanded list
+  // Filter assets
   const filteredAssets = expandedAssets
     .filter((asset) => {
       const searchTarget = [
@@ -79,7 +107,7 @@ const AssetsPage = () => {
       categoryFilter === "all" ? true : asset.category === categoryFilter
     );
 
-  // STEP 3: Pagination
+  // Pagination
   const totalPages = Math.ceil(filteredAssets.length / itemsPerPage);
   const paginatedAssets = filteredAssets.slice(
     (currentPage - 1) * itemsPerPage,
@@ -96,6 +124,14 @@ const AssetsPage = () => {
           <button onClick={handleCreate}>+ Create Asset</button>
           <button onClick={() => navigate("/admin/assets/assign")}>
             Assign Asset to Employee
+          </button>
+
+          {/* Download buttons */}
+          <button onClick={() => handleDownload("pdf")} style={{ marginLeft: "15px" }}>
+            Download Assets PDF
+          </button>
+          <button onClick={() => handleDownload("excel")} style={{ marginLeft: "10px" }}>
+            Download Assets Excel
           </button>
         </div>
       </div>
@@ -123,7 +159,6 @@ const AssetsPage = () => {
           <option value="all">All Status</option>
           <option value="available">Available</option>
           <option value="assigned">Assigned</option>
-
           <option value="maintenance">Maintenance</option>
         </select>
 
@@ -188,7 +223,6 @@ const AssetsPage = () => {
                       History
                     </button>
 
-                    {/* Hide Return button if asset is in 'available' or in maintenance */}
                     {asset.status !== "available" &&
                       asset.status !== "in-repair" &&
                       asset.status !== "maintenance" && (

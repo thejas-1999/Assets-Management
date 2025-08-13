@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAssetLogsById } from "../../../slices/assetLogSlice";
 import {
-  fetchAssets, // ideally add fetchAssetById in your slice for single asset fetch
+  fetchAssets,
   startMaintenance,
   completeMaintenance,
 } from "../../../slices/assetSlice";
@@ -13,22 +13,18 @@ const AssetHistoryPage = () => {
   const { assetId } = useParams();
   const dispatch = useDispatch();
 
-  // Asset state from Redux
   const assets = useSelector((state) => state.asset.assets);
   const loading = useSelector((state) => state.asset.loading);
   const error = useSelector((state) => state.asset.error);
 
-  // Asset logs from Redux
   const {
     logs,
     loading: logsLoading,
     error: logsError,
   } = useSelector((state) => state.assetLogs);
 
-  // Find this asset from the list
   const asset = assets.find((a) => a._id === assetId);
 
-  // Local state for maintenance inputs
   const [maintenanceDesc, setMaintenanceDesc] = useState("");
   const [completeDays, setCompleteDays] = useState("");
   const [completeCost, setCompleteCost] = useState("");
@@ -39,7 +35,6 @@ const AssetHistoryPage = () => {
     dispatch(fetchAssetLogsById(assetId));
   }, [dispatch, assetId, asset]);
 
-  // Start maintenance handler
   const handleStartMaintenance = () => {
     if (!maintenanceDesc.trim()) {
       alert("Please enter a description");
@@ -49,7 +44,6 @@ const AssetHistoryPage = () => {
     setMaintenanceDesc("");
   };
 
-  // Complete maintenance handler
   const handleCompleteMaintenance = () => {
     if (!completeDays || !completeCost) {
       alert("Please enter days taken and cost");
@@ -68,9 +62,30 @@ const AssetHistoryPage = () => {
     setCompleteDesc("");
   };
 
+ // In your download handlers
+const downloadExcel = () => {
+  window.open(`/api/assets/${assetId}/logs/download/excel`, "_blank");
+};
+
+const downloadPDF = () => {
+  window.open(`/api/assets/${assetId}/logs/download/pdf`, "_blank");
+};
+
+
   return (
     <div className="asset-history-container">
-      <h2>Asset History</h2>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <h2>Asset History</h2>
+        <div>
+          <button
+            style={{ marginRight: 10 }}
+            onClick={downloadExcel}
+          >
+            Download Excel
+          </button>
+          <button onClick={downloadPDF}>Download PDF</button>
+        </div>
+      </div>
 
       {loading && !asset ? (
         <p>Loading asset details...</p>
@@ -79,22 +94,11 @@ const AssetHistoryPage = () => {
       ) : asset ? (
         <div className="asset-details">
           <h3>{asset.name}</h3>
-          <p>
-            <strong>Category:</strong> {asset.category}
-          </p>
-          <p>
-            <strong>Serial Numbers:</strong> {asset.serialNumbers.join(", ")}
-          </p>
-          <p>
-            <strong>Specifications:</strong> {asset.specifications}
-          </p>
-          <p>
-            <strong>Purchase Date:</strong>{" "}
-            {new Date(asset.purchaseDate).toLocaleDateString()}
-          </p>
-          <p>
-            <strong>Purchase Value:</strong> ₹{asset.purchaseValue}
-          </p>
+          <p><strong>Category:</strong> {asset.category}</p>
+          <p><strong>Serial Numbers:</strong> {asset.serialNumbers.join(", ")}</p>
+          <p><strong>Specifications:</strong> {asset.specifications}</p>
+          <p><strong>Purchase Date:</strong> {new Date(asset.purchaseDate).toLocaleDateString()}</p>
+          <p><strong>Purchase Value:</strong> ₹{asset.purchaseValue}</p>
           <p>
             <strong>Warranty:</strong>{" "}
             {asset.hasWarranty
@@ -103,9 +107,7 @@ const AssetHistoryPage = () => {
                 ).toLocaleDateString()}`
               : "No Warranty"}
           </p>
-          <p>
-            <strong>Status:</strong> {asset.status}
-          </p>
+          <p><strong>Status:</strong> {asset.status}</p>
         </div>
       ) : null}
 
@@ -136,16 +138,8 @@ const AssetHistoryPage = () => {
                 <td>{log.action}</td>
                 <td>{log.performedBy?.name || "—"}</td>
                 <td>{log.targetUser?.name || "—"}</td>
-                <td>
-                  {log.assignedDate
-                    ? new Date(log.assignedDate).toLocaleDateString()
-                    : "—"}
-                </td>
-                <td>
-                  {log.returnedDate
-                    ? new Date(log.returnedDate).toLocaleDateString()
-                    : "—"}
-                </td>
+                <td>{log.assignedDate ? new Date(log.assignedDate).toLocaleDateString() : "—"}</td>
+                <td>{log.returnedDate ? new Date(log.returnedDate).toLocaleDateString() : "—"}</td>
                 <td>{log.duration || "—"}</td>
                 <td>{log.note || "—"}</td>
                 <td>{new Date(log.date).toLocaleString()}</td>

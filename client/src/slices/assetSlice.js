@@ -213,6 +213,52 @@ const completeMaintenance = createAsyncThunk(
   }
 );
 
+// Download all assets file
+const downloadAssetsFile = createAsyncThunk(
+  'assets/downloadAssetsFile',
+  async (format, thunkAPI) => {
+    try {
+      const { userInfo } = thunkAPI.getState().auth;
+      const config = {
+        headers: { Authorization: `Bearer ${userInfo.token}` },
+        responseType: 'blob', // Important to get binary data
+      };
+      const response = await axios.get(`/api/assets/download/${format}`, config);
+      return { data: response.data, format };
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.response?.data?.message || error.message);
+    }
+  }
+);
+
+// Download individual asset history file
+const downloadAssetHistoryFile = createAsyncThunk(
+  'assets/downloadAssetHistoryFile',
+  async ({ id, format }, thunkAPI) => {
+    try {
+      const { userInfo } = thunkAPI.getState().auth;
+      const config = {
+        headers: { Authorization: `Bearer ${userInfo.token}` },
+        responseType: 'blob',
+      };
+
+      // use backend's existing route
+      const endpoint = `/api/assets/${id}/logs/download/${format}`;
+
+      const response = await axios.get(endpoint, config);
+
+      return { data: response.data, id, format };
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message || error.message
+      );
+    }
+  }
+);
+
+
+
+
 
 const assetSlice = createSlice({
   name: 'asset',
@@ -336,39 +382,58 @@ const assetSlice = createSlice({
           r._id === action.payload._id ? action.payload : r
         );
       })
-      // Start maintenance reducers
-builder
-  .addCase(startMaintenance.pending, (state) => {
-    state.loading = true;
-    state.error = null;
-  })
-  .addCase(startMaintenance.fulfilled, (state, action) => {
-    state.loading = false;
-    state.assets = state.assets.map((a) =>
-      a._id === action.payload._id ? action.payload : a
-    );
-  })
-  .addCase(startMaintenance.rejected, (state, action) => {
-    state.loading = false;
-    state.error = action.payload;
-  });
+    // Start maintenance reducers
+    builder
+      .addCase(startMaintenance.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(startMaintenance.fulfilled, (state, action) => {
+        state.loading = false;
+        state.assets = state.assets.map((a) =>
+          a._id === action.payload._id ? action.payload : a
+        );
+      })
+      .addCase(startMaintenance.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      });
 
-// Complete maintenance reducers
-builder
-  .addCase(completeMaintenance.pending, (state) => {
-    state.loading = true;
-    state.error = null;
-  })
-  .addCase(completeMaintenance.fulfilled, (state, action) => {
-    state.loading = false;
-    state.assets = state.assets.map((a) =>
-      a._id === action.payload._id ? action.payload : a
-    );
-  })
-  .addCase(completeMaintenance.rejected, (state, action) => {
-    state.loading = false;
-    state.error = action.payload;
-  });
+    // Complete maintenance reducers
+    builder
+      .addCase(completeMaintenance.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(completeMaintenance.fulfilled, (state, action) => {
+        state.loading = false;
+        state.assets = state.assets.map((a) =>
+          a._id === action.payload._id ? action.payload : a
+        );
+      })
+      .addCase(completeMaintenance.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+    extraReducers: (builder) => {
+      builder
+        // existing cases...
+
+        .addCase(downloadAssetsFile.fulfilled, (state, action) => {
+          // No state change needed, handled in component
+        })
+        .addCase(downloadAssetsFile.rejected, (state, action) => {
+          state.error = action.payload;
+        })
+
+        .addCase(downloadAssetHistoryFile.fulfilled, (state, action) => {
+          // No state change needed, handled in component
+        })
+        .addCase(downloadAssetHistoryFile.rejected, (state, action) => {
+          state.error = action.payload;
+        })
+    }
+
 
 
 
@@ -386,5 +451,7 @@ export {
   updateAsset,
   assignAsset,
   startMaintenance,
-  completeMaintenance
+  completeMaintenance,
+  downloadAssetsFile,
+  downloadAssetHistoryFile
 };

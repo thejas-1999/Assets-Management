@@ -4,6 +4,8 @@ import User from "../models/userModel.js";
 import Request from "../models/requestModel.js";
 import Setting from '../models/settingModel.js';
 import asyncHandler from "../middleware/asyncHandler.js";
+import ExcelJS from 'exceljs';
+import PDFDocument from 'pdfkit';
 
 /**
  * @desc    Create a new asset
@@ -577,6 +579,275 @@ const getMyRequests = asyncHandler(async (req, res) => {
   res.json(requests);
 });
 
+
+
+const downloadAssetsExcel = asyncHandler(async (req, res) => {
+  const assets = await Asset.find().populate("assignedTo", "name");
+
+  const workbook = new ExcelJS.Workbook();
+  const worksheet = workbook.addWorksheet("Assets");
+
+  worksheet.columns = [
+    { header: "ID", key: "_id", width: 30 },
+    { header: "Name", key: "name", width: 30 },
+    { header: "Category", key: "category", width: 20 },
+    { header: "Status", key: "status", width: 15 },
+    { header: "Serial Numbers", key: "serialNumbers", width: 30 },
+    { header: "Assigned To", key: "assignedTo", width: 25 },
+    { header: "Warranty", key: "warranty", width: 20 }, // Added warranty
+    { header: "Purchase Date", key: "purchaseDate", width: 20 },
+    { header: "Purchase Value", key: "purchaseValue", width: 15 },
+  ];
+
+ assets.forEach((asset) => {
+  const warrantyInfo = asset.hasWarranty
+    ? `${asset.warrantyStartDate ? asset.warrantyStartDate.toISOString().slice(0, 10) : "?"} - ${asset.warrantyEndDate ? asset.warrantyEndDate.toISOString().slice(0, 10) : "?"}`
+    : "No warranty";
+
+  worksheet.addRow({
+    _id: asset._id.toString(),
+    name: asset.name,
+    category: asset.category,
+    status: asset.status,
+    serialNumbers: asset.serialNumbers?.length
+      ? asset.serialNumbers.join(", ")
+      : "—",
+    assignedTo: asset.assignedTo
+      ? asset.assignedTo.name
+      : asset.status === "available"
+      ? "Available"
+      : asset.status === "maintenance"
+      ? "Maintenance"
+      : "—",
+    warranty: warrantyInfo,
+    purchaseDate: asset.purchaseDate
+      ? asset.purchaseDate.toISOString().slice(0, 10)
+      : "",
+    purchaseValue: asset.purchaseValue || "",
+  });
+});
+
+
+  res.setHeader(
+    "Content-Type",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+  );
+  res.setHeader("Content-Disposition", "attachment; filename=assets.xlsx");
+
+  await workbook.xlsx.write(res);
+  res.end();
+});
+
+const downloadAssetsPDF = asyncHandler(async (req, res) => {
+  const assets = await Asset.find().populate("assignedTo", "name");
+
+  const doc = new PDFDocument({ margin: 30, size: "A4" });
+
+  res.setHeader("Content-Type", "application/pdf");
+  res.setHeader("Content-Disposition", "attachment; filename=assets.pdf");
+
+  doc.pipe(res);
+
+  doc.fontSize(18).text("Asset List", { align: "center" });
+  doc.moveDown();
+
+assets.forEach((asset, index) => {
+  const warrantyInfo = asset.hasWarranty
+    ? `${asset.warrantyStartDate ? asset.warrantyStartDate.toISOString().slice(0, 10) : "?"} - ${asset.warrantyEndDate ? asset.warrantyEndDate.toISOString().slice(0, 10) : "?"}`
+    : "No warranty";
+
+  doc.fontSize(12).text(`${index + 1}. ${asset.name} (${asset.category})`);
+  doc.text(`   ID: ${asset._id}`);
+  doc.text(`   Status: ${asset.status}`);
+  doc.text(`   Serial Numbers: ${asset.serialNumbers?.length ? asset.serialNumbers.join(", ") : "—"}`);
+  doc.text(`   Assigned To: ${
+    asset.assignedTo
+      ? asset.assignedTo.name
+      : asset.status === "available"
+      ? "Available"
+      : asset.status === "maintenance"
+      ? "Maintenance"
+      : "—"
+  }`);
+  doc.text(`   Warranty: ${warrantyInfo}`);
+  doc.text(`   Purchase Date: ${asset.purchaseDate ? asset.purchaseDate.toISOString().slice(0, 10) : "N/A"}`);
+  doc.text(`   Purchase Value: ${asset.purchaseValue || "N/A"}`);
+  doc.moveDown();
+});
+
+
+  doc.end();
+});
+
+
+
+
+
+const downloadAssetLogsExcel = asyncHandler(async (req, res) => {
+  const assetId = req.params.id;
+
+  // Fetch asset with all details
+  const asset = await Asset.findById(assetId)
+    .populate('assignedTo', 'name email')
+    .populate('usageHistory.user', 'name email');
+
+  const logs = await AssetLog.find({ asset: assetId })
+    .populate('performedBy', 'name email')
+    .populate('targetUser', 'name email')
+    .sort({ date: -1 });
+
+  const workbook = new ExcelJS.Workbook();
+
+  // Sheet 1: Asset Details
+  const assetSheet = workbook.addWorksheet('Asset Details');
+  assetSheet.addRow(['Field', 'Value']);
+  assetSheet.addRow(['Name', asset.name]);
+  assetSheet.addRow(['Category', asset.category]);
+  assetSheet.addRow(['Serial Numbers', asset.serialNumbers?.join(', ') || '—']);
+  assetSheet.addRow(['Specifications', asset.specifications || '—']);
+  assetSheet.addRow(['Purchase Date', asset.purchaseDate ? asset.purchaseDate.toISOString().slice(0, 10) : '—']);
+  assetSheet.addRow(['Purchase Value', asset.purchaseValue || '—']);
+  assetSheet.addRow(['Warranty', asset.hasWarranty
+    ? `${asset.warrantyStartDate?.toISOString().slice(0, 10) || '?'} - ${asset.warrantyEndDate?.toISOString().slice(0, 10) || '?'}`
+    : 'No warranty'
+  ]);
+  assetSheet.addRow(['Status', asset.status]);
+  assetSheet.addRow(['Currently Assigned To', asset.assignedTo ? `${asset.assignedTo.name} (${asset.assignedTo.email})` : 'Not assigned']);
+
+  // Sheet 2: Usage History
+  const usageSheet = workbook.addWorksheet('Usage History');
+  usageSheet.columns = [
+    { header: 'User', key: 'user', width: 25 },
+    { header: 'Assigned Date', key: 'assignedDate', width: 20 },
+    { header: 'Returned Date', key: 'returnedDate', width: 20 },
+    { header: 'Days Used', key: 'daysUsed', width: 15 },
+  ];
+  asset.usageHistory.forEach(history => {
+    usageSheet.addRow({
+      user: history.user ? history.user.name : '',
+      assignedDate: history.assignedDate ? history.assignedDate.toISOString().slice(0, 10) : '',
+      returnedDate: history.returnedDate ? history.returnedDate.toISOString().slice(0, 10) : '',
+      daysUsed: history.daysUsed || '',
+    });
+  });
+
+  // Sheet 3: Maintenance History
+  const maintenanceSheet = workbook.addWorksheet('Maintenance History');
+  maintenanceSheet.columns = [
+    { header: 'Maintenance Date', key: 'maintenanceDate', width: 20 },
+    { header: 'Days Taken', key: 'daysTaken', width: 15 },
+    { header: 'Cost', key: 'cost', width: 15 },
+    { header: 'Description', key: 'description', width: 40 },
+  ];
+  asset.maintenanceLogs.forEach(log => {
+    maintenanceSheet.addRow({
+      maintenanceDate: log.maintenanceDate ? log.maintenanceDate.toISOString().slice(0, 10) : '',
+      daysTaken: log.daysTaken || '',
+      cost: log.cost || '',
+      description: log.description || '',
+    });
+  });
+
+  // Sheet 4: Asset Logs
+  const logSheet = workbook.addWorksheet('Asset Logs');
+  logSheet.columns = [
+    { header: 'Date', key: 'date', width: 20 },
+    { header: 'Action', key: 'action', width: 20 },
+    { header: 'Performed By', key: 'performedBy', width: 25 },
+    { header: 'Target User', key: 'targetUser', width: 25 },
+    { header: 'Note', key: 'note', width: 40 },
+  ];
+  logs.forEach(log => {
+    logSheet.addRow({
+      date: log.createdAt ? log.createdAt.toISOString().slice(0, 19).replace('T', ' ') : '',
+      action: log.action,
+      performedBy: log.performedBy ? log.performedBy.name : '',
+      targetUser: log.targetUser ? log.targetUser.name : '',
+      note: log.note || '',
+    });
+  });
+
+  // Send file
+  res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+  res.setHeader('Content-Disposition', `attachment; filename=asset_${assetId}_logs.xlsx`);
+  await workbook.xlsx.write(res);
+  res.end();
+});
+
+
+
+const downloadAssetLogsPDF = asyncHandler(async (req, res) => {
+  const assetId = req.params.id;
+
+  const asset = await Asset.findById(assetId)
+    .populate('assignedTo', 'name email')
+    .populate('usageHistory.user', 'name email');
+
+  const logs = await AssetLog.find({ asset: assetId })
+    .populate('performedBy', 'name email')
+    .populate('targetUser', 'name email')
+    .sort({ date: -1 });
+
+  const doc = new PDFDocument({ margin: 30, size: 'A4' });
+
+  res.setHeader('Content-Type', 'application/pdf');
+  res.setHeader('Content-Disposition', `attachment; filename=asset_${assetId}_logs.pdf`);
+
+  doc.pipe(res);
+
+  doc.fontSize(18).text(`Asset Details - ${asset.name}`, { align: 'center' });
+  doc.moveDown();
+
+  doc.fontSize(12).text(`Category: ${asset.category}`);
+  doc.text(`Serial Numbers: ${asset.serialNumbers?.join(', ') || '—'}`);
+  doc.text(`Specifications: ${asset.specifications || '—'}`);
+  doc.text(`Purchase Date: ${asset.purchaseDate ? asset.purchaseDate.toISOString().slice(0, 10) : '—'}`);
+  doc.text(`Purchase Value: ${asset.purchaseValue || '—'}`);
+  doc.text(`Warranty: ${asset.hasWarranty
+    ? `${asset.warrantyStartDate?.toISOString().slice(0, 10) || '?'} - ${asset.warrantyEndDate?.toISOString().slice(0, 10) || '?'}`
+    : 'No warranty'
+  }`);
+  doc.text(`Status: ${asset.status}`);
+  doc.text(`Currently Assigned To: ${asset.assignedTo ? `${asset.assignedTo.name} (${asset.assignedTo.email})` : 'Not assigned'}`);
+  doc.moveDown();
+
+  // Usage History
+  doc.fontSize(14).text('Usage History', { underline: true });
+  asset.usageHistory.forEach((u, i) => {
+    doc.fontSize(12).text(`${i + 1}. ${u.user ? u.user.name : ''}`);
+    doc.text(`   Assigned Date: ${u.assignedDate ? u.assignedDate.toISOString().slice(0, 10) : ''}`);
+    doc.text(`   Returned Date: ${u.returnedDate ? u.returnedDate.toISOString().slice(0, 10) : ''}`);
+    doc.text(`   Days Used: ${u.daysUsed || ''}`);
+    doc.moveDown();
+  });
+
+  // Maintenance History
+  doc.fontSize(14).text('Maintenance History', { underline: true });
+  asset.maintenanceLogs.forEach((m, i) => {
+    doc.fontSize(12).text(`${i + 1}. Date: ${m.maintenanceDate ? m.maintenanceDate.toISOString().slice(0, 10) : ''}`);
+    doc.text(`   Days Taken: ${m.daysTaken || ''}`);
+    doc.text(`   Cost: ${m.cost || ''}`);
+    doc.text(`   Description: ${m.description || ''}`);
+    doc.moveDown();
+  });
+
+  // Logs
+  doc.fontSize(14).text('Activity Logs', { underline: true });
+  logs.forEach((log, index) => {
+    doc.fontSize(12).text(`${index + 1}. Action: ${log.action}`);
+    doc.text(`   Date: ${log.createdAt ? log.createdAt.toISOString().slice(0, 19).replace('T', ' ') : ''}`);
+    doc.text(`   Performed By: ${log.performedBy ? log.performedBy.name : ''}`);
+    doc.text(`   Target User: ${log.targetUser ? log.targetUser.name : ''}`);
+    doc.text(`   Note: ${log.note || ''}`);
+    doc.moveDown();
+  });
+
+  doc.end();
+});
+
+
+
+
 export {
   createAsset,
   getAllAssets,
@@ -592,5 +863,9 @@ export {
   updateRequestStatus,
   getMyRequests,
   startMaintenance,
-  completeMaintenance
+  completeMaintenance,
+  downloadAssetsExcel,
+  downloadAssetsPDF,
+  downloadAssetLogsExcel,
+  downloadAssetLogsPDF
 };
